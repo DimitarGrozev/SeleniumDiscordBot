@@ -6,6 +6,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Resources;
+using System.Text.RegularExpressions;
 using System.Threading;
 
 namespace ConsoleApp4
@@ -20,7 +21,7 @@ namespace ConsoleApp4
             var serverId = "guildsnav___923670412943044631";
             var channelsList = "content-2a4AW9";
             var channelId = "/channels/923670412943044631/923670551120207882";
-            var messages = Resources.Phrases.Split(Environment.NewLine).Where(s =>!string.IsNullOrWhiteSpace(s)).ToList();
+            var questions = File.ReadAllLines("../../../messages.txt", System.Text.Encoding.UTF8).OrderBy(x => Guid.NewGuid());
 
             //Simulate activity
             var edgeBrowser = new EdgeDriver();
@@ -43,19 +44,33 @@ namespace ConsoleApp4
 
             var channelsSection = edgeBrowser.FindElement(SelectorByAttributeValue("class", channelsList));
             channelsSection.Click();
-            //scroll if the channel is down the list
-            for(int i = 0; i< 100;i++)
-            new Actions(edgeBrowser).SendKeys(Keys.Down).Build().Perform();
 
-            var channel = edgeBrowser.FindElement(SelectorByAttributeValue("href", channelId));
-            channel.Click();
+            IWebElement channel = null;
+
+            for (int i = 0; i < 100; i++)
+            {
+                new Actions(edgeBrowser).SendKeys(Keys.Down).Build().Perform();
+
+                try
+                {
+                    channel = edgeBrowser.FindElement(SelectorByAttributeValue("href", channelId));
+                    channel.Click();
+                }
+                catch (Exception e)
+                {
+                    continue;
+                }
+
+                break;
+            }
 
             while (true)
             {
-                foreach (var message in messages)
+                foreach (var question in questions)
                 {
-                    (new Actions(edgeBrowser)).SendKeys(message + OpenQA.Selenium.Keys.Enter).Perform();
-                    Thread.Sleep(10000);
+                    var message = Regex.Replace(question, @"\p{Cs}", " :D ");
+                    (new Actions(edgeBrowser)).SendKeys(message + " " + OpenQA.Selenium.Keys.Enter).Perform();
+                    Thread.Sleep(61000);
                 }
             }
         }
