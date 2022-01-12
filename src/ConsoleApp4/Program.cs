@@ -23,7 +23,7 @@ namespace ConsoleApp4
             var channelId = "/channels/923670412943044631/923670551120207882";
             var questions = File.ReadAllLines("../../../messages.txt", System.Text.Encoding.UTF8).OrderBy(x => Guid.NewGuid());
 
-            var client = new DiscordBotClient(email, pass, "Squiggles", "slow-mode-chat", 6000, questions);
+            var client = new DiscordBotClient(email, pass, "Squiggles", "squiggles-chat", 61000, questions);
 
             client.Launch();
         }
