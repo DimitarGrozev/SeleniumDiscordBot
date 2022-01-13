@@ -1,30 +1,36 @@
-﻿using ConsoleApp4.Properties;
-using OpenQA.Selenium;
-using OpenQA.Selenium.Edge;
-using OpenQA.Selenium.Interactions;
+﻿using ConsoleApp4.Models;
+using ConsoleApp4.Utilities;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Resources;
-using System.Text.RegularExpressions;
+using System.Text.Json;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace ConsoleApp4
 {
     class Program
     {
+        private static readonly string configurationFilePath = "../../../Data/configuration.json";
+        private static readonly string credentialsFilePath = "../../../Data/credentials.json";
+        private static readonly string targetsFilePath = "../../../Data/targets.json";
+
         static void Main(string[] args)
         {
-            //Parameters
-            var email = "discordtest123alabala@abv.bg";
-            var pass = "asdQWE123!qjmihuq";
-            var serverId = "guildsnav___923670412943044631";
+            var configurationProvider = new ServiceProvider<Configuration>(configurationFilePath);
+            var configuration = configurationProvider.Provide();
 
-            var channelId = "/channels/923670412943044631/923670551120207882";
-            var questions = File.ReadAllLines("../../../messages.txt", System.Text.Encoding.UTF8).OrderBy(x => Guid.NewGuid());
+            var credentialsProvider = new ServiceProvider<Credentials>(credentialsFilePath);
+            var credentials = credentialsProvider.Provide();
 
-            var client = new DiscordBotClient(email, pass, "Squiggles", "squiggles-chat", 61000, questions);
+            var targetsProvider = new ServiceProvider<Targets>(targetsFilePath);
+            var targets = targetsProvider.Provide();
 
+            var messagesProvider = new ServiceProvider<Messages>(configuration.MessagesFilePath);
+            var messages = messagesProvider.Provide();
+           
+            var client = new DiscordBotClient(credentials,configuration,messages,targets);
             client.Launch();
         }
     }

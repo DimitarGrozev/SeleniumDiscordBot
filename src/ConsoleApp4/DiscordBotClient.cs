@@ -1,6 +1,8 @@
-﻿using OpenQA.Selenium;
+﻿using ConsoleApp4.Models;
+using OpenQA.Selenium;
 using OpenQA.Selenium.Edge;
 using OpenQA.Selenium.Interactions;
+using OpenQA.Selenium.Support.UI;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,77 +16,80 @@ namespace ConsoleApp4
 {
     public class DiscordBotClient
     {
-        private readonly string email;
-        private readonly string password;
-        private readonly string serverName;
-        private readonly string channelName;
-        private readonly int messageDelay;
-        private readonly IEnumerable<string> messages;
-
         private const string channelsList = "content-2a4AW9";
         private const string targetUrl = "https://discord.com/channels/@me";
 
-        public DiscordBotClient(string email, string password, string serverName, string channelName, int messageDelay, IEnumerable<string> messages)
+        private readonly Credentials credentials;
+        private readonly Configuration configuration;
+        private readonly Messages messages;
+        private readonly Targets targets;
+
+        public DiscordBotClient(Credentials credentials, Configuration configuration, Messages messages, Targets targets)
         {
-            this.email = email;
-            this.password = password;
-            this.serverName = serverName;
-            this.channelName = channelName;
-            this.messageDelay = messageDelay;
+            this.credentials = credentials;
+            this.configuration = configuration;
             this.messages = messages;
+            this.targets = targets;
         }
 
         public void Launch()
         {
-            //Simulate activity
-            var edgeBrowser = new EdgeDriver();
-            edgeBrowser.Navigate().GoToUrl("https://discord.com/channels/@me");
+            var driver = new EdgeDriver();
+            driver.Navigate().GoToUrl(targetUrl);
             Thread.Sleep(2000);
 
-            var emailElement = edgeBrowser.FindElement(SelectorByAttributeValue("class", "inputDefault-3FGxgL input-2g-os5 inputField-2RZxdl"));
-            emailElement.SendKeys(this.email);
+            //Login
+            var emailElement = driver.FindElement(SelectorByAttributeValue("class", "inputDefault-3FGxgL input-2g-os5 inputField-2RZxdl"));
+            emailElement.SendKeys(this.credentials.Email);
 
-            var passwordElement = edgeBrowser.FindElement(SelectorByAttributeValue("class", "inputDefault-3FGxgL input-2g-os5"));
-            passwordElement.SendKeys(this.password);
+            var passwordElement = driver.FindElement(SelectorByAttributeValue("class", "inputDefault-3FGxgL input-2g-os5"));
+            passwordElement.SendKeys(this.credentials.Password);
 
-            var loginButton = edgeBrowser.FindElement(SelectorByAttributeValue("class", "marginBottom8-emkd0_ button-1cRKG6 button-f2h6uQ lookFilled-yCfaCM colorBrand-I6CyqQ sizeLarge-3mScP9 fullWidth-fJIsjq grow-2sR_-F"));
+            var loginButton = driver.FindElement(SelectorByAttributeValue("class", "marginBottom8-emkd0_ button-1cRKG6 button-f2h6uQ lookFilled-yCfaCM colorBrand-I6CyqQ sizeLarge-3mScP9 fullWidth-fJIsjq grow-2sR_-F"));
             loginButton.Click();
             Thread.Sleep(5000);
 
-            var server = edgeBrowser.FindElement(SelectorByAttributeThatContainsValue("aria-label", serverName));
-            server.Click();
-            Thread.Sleep(1000);
-
-            var channelsSection = edgeBrowser.FindElement(SelectorByAttributeValue("class", channelsList));
-            channelsSection.Click();
-
-            IWebElement channel = null;
-
-            for (int i = 0; i < 100; i++)
-            {
-                new Actions(edgeBrowser).SendKeys(Keys.Down).Build().Perform();
-
-                try
-                {
-                    channel = edgeBrowser.FindElement(SelectorByAttributeThatContainsValue("aria-label", channelName));
-                    channel.Click();
-                }
-                catch (Exception e)
-                {
-                    continue;
-                }
-
-                break;
-            }
-
+            //Start messaging the servers
             while (true)
             {
-                foreach (var message in messages)
+                foreach (var target in targets.Servers)
                 {
+                    var server = driver.FindElement(SelectorByAttributeThatContainsValue("aria-label", target.Name));
+                    server.Click();
+                    Thread.Sleep(1000);
+
+                    var channelsSection = driver.FindElement(SelectorByAttributeValue("class", channelsList));
+                    channelsSection.Click();
+
+                    IWebElement channel = null;
+
+                    for (int i = 0; i < 100; i++)
+                    {
+                        new Actions(driver).SendKeys(Keys.Down).Build().Perform();
+
+                        try
+                        {
+                            channel = driver.FindElement(SelectorByAttributeThatContainsValue("aria-label", target.Channel));
+                            channel.Click();
+                        }
+                        catch (Exception e)
+                        {
+                            continue;
+                        }
+
+                        break;
+                    }
+
+                    var message = this.messages.Sentences.OrderBy(x => Guid.NewGuid()).FirstOrDefault();
                     var sanitizedMessage = Regex.Replace(message, @"\p{Cs}", " :D ");
-                    (new Actions(edgeBrowser)).SendKeys(sanitizedMessage + " " + OpenQA.Selenium.Keys.Enter).Perform();
-                    Thread.Sleep(this.messageDelay);
+                    (new Actions(driver)).SendKeys(sanitizedMessage + " " + OpenQA.Selenium.Keys.Enter).Perform();
+
+                    //Wait between server switch
+                    Thread.Sleep(this.configuration.ServerSwitchDelay);
                 }
+
+                //Delay between messages
+                Thread.Sleep(this.configuration.MessageDelay);
             }
         }
 
