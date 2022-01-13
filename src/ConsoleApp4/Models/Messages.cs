@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace ConsoleApp4.Models
 {
-    public class Messages : Entity
+    public class Messages
     {
+        [JsonPropertyName("sentences")]
         public List<string> Sentences { get; set; }
     }
 }

@@ -18,19 +18,19 @@ namespace ConsoleApp4
 
         static void Main(string[] args)
         {
-            var configurationProvider = new ServiceProvider<Configuration>(configurationFilePath);
-            var configuration = configurationProvider.Provide();
-
-            var credentialsProvider = new ServiceProvider<Credentials>(credentialsFilePath);
+            var credentialsProvider = new DataProvider<Credentials>(credentialsFilePath);
             var credentials = credentialsProvider.Provide();
 
-            var targetsProvider = new ServiceProvider<Targets>(targetsFilePath);
+            var configurationProvider = new DataProvider<Configuration>(configurationFilePath);
+            var configuration = configurationProvider.Provide();
+
+            var targetsProvider = new DataProvider<Targets>(targetsFilePath);
             var targets = targetsProvider.Provide();
 
-            var messagesProvider = new ServiceProvider<Messages>(configuration.MessagesFilePath);
+            var messagesProvider = new DataProvider<Messages>(configuration.MessagesFilePath);
             var messages = messagesProvider.Provide();
-           
-            var client = new DiscordBotClient(credentials,configuration,messages,targets);
+
+            var client = new DiscordBotClient(credentials, configuration, messages, targets);
             client.Launch();
         }
     }

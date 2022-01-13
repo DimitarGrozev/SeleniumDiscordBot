@@ -1,12 +1,12 @@
 ﻿{
-  "servers":[
-	  {
-	  "name": "Squiggles",
-	  "channel": "squiggles-chat"
-	  },
-	  {
-	  "name": "Quck Buck",
-	  "channel": "verification"
-	  }
+  "servers": [
+    {
+      "name": "Squiggles",
+      "channel": "squiggles-chat"
+    },
+    {
+      "name": "Quck Buck",
+      "channel": "verification"
+    }
   ]
 }

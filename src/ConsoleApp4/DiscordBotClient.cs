@@ -72,7 +72,7 @@ namespace ConsoleApp4
                             channel = driver.FindElement(SelectorByAttributeThatContainsValue("aria-label", target.Channel));
                             channel.Click();
                         }
-                        catch (Exception e)
+                        catch (Exception)
                         {
                             continue;
                         }
