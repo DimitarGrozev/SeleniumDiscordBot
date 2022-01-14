@@ -1,4 +1,5 @@
 ﻿using ConsoleApp4.Models;
+using ConsoleApp4.Utilities;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Edge;
 using OpenQA.Selenium.Interactions;
@@ -83,6 +84,8 @@ namespace ConsoleApp4
                     var message = this.messages.Sentences.OrderBy(x => Guid.NewGuid()).FirstOrDefault();
                     var sanitizedMessage = Regex.Replace(message, @"\p{Cs}", " :D ");
                     (new Actions(driver)).SendKeys(sanitizedMessage + " " + OpenQA.Selenium.Keys.Enter).Perform();
+
+                    Logger.LogMessage(target.Name, sanitizedMessage);
 
                     //Wait between server switch
                     Thread.Sleep(this.configuration.ServerSwitchDelay);

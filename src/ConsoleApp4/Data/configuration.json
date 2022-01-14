@@ -1,5 +1,5 @@
 {
-  "messageDelay": 1000,
-  "serverSwitchDelay": 1000,
+  "messageDelay": 61000,
+  "serverSwitchDelay": 0,
   "messagesFilePath": "../../../Data/messages.json"
 }
