@@ -50,42 +50,31 @@ namespace ConsoleApp4
             loginButton.Click();
             Thread.Sleep(5000);
 
+            while (true)
+            {
+                try
+                {
+                    driver.FindElement(SelectorByAttributeValue("class", "title-3FQ39e marginBottom8-emkd0_ fontDisplay-3Gtuks base-21yXnu size24-17l95E"));
+                    continue;
+                }
+                catch (Exception ex)
+                {
+                    break;
+                }
+            }
+
+            Thread.Sleep(4000);
+
             //Start messaging the servers
             while (true)
             {
                 foreach (var target in targets.Servers)
                 {
-                    var server = driver.FindElement(SelectorByAttributeThatContainsValue("aria-label", target.Name));
-                    server.Click();
-                    Thread.Sleep(1000);
+                    FindSpecifiedServer(driver, target);
 
-                    var channelsSection = driver.FindElement(SelectorByAttributeValue("class", channelsList));
-                    channelsSection.Click();
+                    FindSpecifiedChannel(driver, target);
 
-                    IWebElement channel = null;
-
-                    for (int i = 0; i < 100; i++)
-                    {
-                        new Actions(driver).SendKeys(Keys.Down).Build().Perform();
-
-                        try
-                        {
-                            channel = driver.FindElement(SelectorByAttributeThatContainsValue("aria-label", target.Channel));
-                            channel.Click();
-                        }
-                        catch (Exception)
-                        {
-                            continue;
-                        }
-
-                        break;
-                    }
-
-                    var message = this.messages.Sentences.OrderBy(x => Guid.NewGuid()).FirstOrDefault();
-                    var sanitizedMessage = Regex.Replace(message, @"\p{Cs}", " :D ");
-                    (new Actions(driver)).SendKeys(sanitizedMessage + " " + OpenQA.Selenium.Keys.Enter).Perform();
-
-                    Logger.LogMessage(target.Name, sanitizedMessage);
+                    SendMessageToChannel(driver, target);
 
                     //Wait between server switch
                     Thread.Sleep(this.configuration.ServerSwitchDelay);
@@ -93,6 +82,47 @@ namespace ConsoleApp4
 
                 //Delay between messages
                 Thread.Sleep(this.configuration.MessageDelay);
+            }
+        }
+
+        private void SendMessageToChannel(EdgeDriver driver, Server target)
+        {
+            var message = this.messages.Sentences.OrderBy(x => Guid.NewGuid()).FirstOrDefault();
+            var sanitizedMessage = Regex.Replace(message, @"\p{Cs}", " :D ");
+            (new Actions(driver)).SendKeys(sanitizedMessage + " " + OpenQA.Selenium.Keys.Enter).Perform();
+
+            Logger.LogMessage(target.Name, sanitizedMessage);
+        }
+
+        private void FindSpecifiedServer (EdgeDriver driver, Server target)
+        {
+            var server = driver.FindElement(SelectorByAttributeThatContainsValue("aria-label", target.Name));
+            server.Click();
+            Thread.Sleep(1000);
+        }
+
+        private void FindSpecifiedChannel (EdgeDriver driver, Server target)
+        {
+            var channelsSection = driver.FindElement(SelectorByAttributeValue("class", channelsList));
+            channelsSection.Click();
+
+            IWebElement channel = null;
+
+            for (int i = 0; i < 100; i++)
+            {
+                new Actions(driver).SendKeys(Keys.Down).Build().Perform();
+
+                try
+                {
+                    channel = driver.FindElement(SelectorByAttributeThatContainsValue("aria-label", target.Channel));
+                    channel.Click();
+                }
+                catch (Exception)
+                {
+                    continue;
+                }
+
+                break;
             }
         }
 
