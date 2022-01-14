@@ -1,0 +1,12 @@
+﻿{
+  "bots": [
+    {
+      "name": "Squiggles Server Bot",
+      "server": {
+        "name": "Squiggles",
+        "channel": "squiggles-chat"
+      },
+      "messageDelay": 61000
+    }
+  ]
+}
