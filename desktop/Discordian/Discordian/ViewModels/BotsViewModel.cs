@@ -31,7 +31,7 @@ namespace Discordian.ViewModels
         {
             SampleItems.Clear();
 
-            var data = await SampleDataService.GetBotList();
+            var data = await DiscordianDbContext.GetBotList();
 
             foreach (var item in data)
             {

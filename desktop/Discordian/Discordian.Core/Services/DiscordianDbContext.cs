@@ -9,7 +9,7 @@ using Discordian.Core.Models;
 
 namespace Discordian.Core.Services
 {
-    public static class SampleDataService
+    public static class DiscordianDbContext
     {
         private readonly static string targetFilePath = "Data/targets.json";
         private readonly static string appSettingsFilePath = "Data/configuration.json";
