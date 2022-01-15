@@ -1,14 +1,21 @@
 ﻿using System;
-
+using Discordian.Core.Services;
 using Discordian.ViewModels;
 
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media;
 
 namespace Discordian.Views
 {
     public sealed partial class BotsPage : Page
     {
+        public string BotName { get; set; }
+        public string ServerName { get; set; }
+        public string ChannelName { get; set; }
+        public int MessageDelay{ get; set; } 
+
+
         public BotsViewModel ViewModel { get; } = new BotsViewModel();
 
         public BotsPage()
@@ -24,21 +31,25 @@ namespace Discordian.Views
 
         private async void CreateBotButton_Click(object sender, RoutedEventArgs e)
         {
-            var input = new TextBox();
-            var input2 = new TextBox();
+            await AddBotContentDialog.ShowAsync();
+        }
 
-            var dialogContent = new StackPanel();
-            dialogContent.Children.Add(input);
-            dialogContent.Children.Add(input2);
+        private async void addBotBtn_Click(object sender, RoutedEventArgs e)
+        {
+            var name = this.BotName;
+            var serverName = this.ServerName;
+            var channelName = this.ChannelName;
+            var messageDelay = this.MessageDelay;
 
-            ContentDialog createDialog = new ContentDialog
-            {
-                Title = "Create new bot",
-                Content = dialogContent,
-                CloseButtonText = "Ok"
-            };
+            await DiscordianDbContext.CreateBotAsync(name, serverName, channelName, messageDelay);
 
-            ContentDialogResult result = await createDialog.ShowAsync();
+
+            AddBotContentDialog.Hide();
+        }
+
+        private void cancelBtn_Click(object sender, RoutedEventArgs e)
+        {
+            AddBotContentDialog.Hide();
         }
     }
 }

@@ -7,13 +7,14 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Style="{StaticResource PageStyle}"
     xmlns:model="using:Discordian.Core.Models"
-    xmlns:views="using:Discordian.Views"
+    xmlns:views="using:Discordian.Views" xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     mc:Ignorable="d">
     <Page.Transitions>
         <TransitionCollection>
             <NavigationThemeTransition />
         </TransitionCollection>
     </Page.Transitions>
+
     <Page.Resources>
         <DataTemplate x:Key="ItemTemplate" x:DataType="model:Bot">
             <Grid Height="60">
@@ -55,8 +56,8 @@
         <DataTemplate x:Key="ListHeaderTemplate">
             <Grid Height="40">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <TextBlock
                     Grid.Column="0"
@@ -75,6 +76,8 @@
                     FontSize="16"
                     Glyph="&#xE109;" />
                 </Button>
+                
+                
             </Grid>
         </DataTemplate>
         <DataTemplate x:Key="MinimalListHeaderTemplate">
@@ -115,5 +118,20 @@
             ListHeaderTemplate="{StaticResource MinimalListHeaderTemplate}"
             NoSelectionContentTemplate="{StaticResource NoSelectionContentTemplate}"
             SelectedItem="{x:Bind ViewModel.Selected, Mode=TwoWay}" />
+
+        <ContentDialog
+                    x:Name="AddBotContentDialog"
+                    Title="Add bot">
+            <!-- Content body -->
+            <StackPanel>
+                <TextBox Text="{x:Bind BotName, Mode=TwoWay}" Header="Bot name"></TextBox>
+                <TextBox Text="{x:Bind ServerName, Mode=TwoWay}" Header="Server name"></TextBox>
+                <TextBox Text="{x:Bind ChannelName, Mode=TwoWay}" Header="Channel name"></TextBox>
+                <muxc:NumberBox Header="Message delay:" Value="{x:Bind MessageDelay, Mode=TwoWay}" PlaceholderText="Milliseconds" />
+
+                <Button Content="Add" x:Name="addBotBtn" Click="addBotBtn_Click" Margin="5,0" Width="100" />
+                <Button Content="Cancel" x:Name="cancelBtn" Click="cancelBtn_Click" Margin="5,0" Width="100" />
+            </StackPanel>
+        </ContentDialog>
     </Grid>
 </Page>

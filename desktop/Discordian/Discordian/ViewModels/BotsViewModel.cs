@@ -30,7 +30,7 @@ namespace Discordian.ViewModels
         public async Task LoadDataAsync(ListDetailsViewState viewState)
         {
             SampleItems.Clear();
-
+            
             var data = await DiscordianDbContext.GetBotList();
 
             foreach (var item in data)

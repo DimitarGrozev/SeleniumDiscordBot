@@ -41,5 +41,21 @@ namespace Discordian.Core.Services
 
             return new List<Bot>();
         }
+
+        public static async Task<Bot> CreateBotAsync(string botName, string serverName, string channelName, int messageDelay)
+        {
+            var bot = new Bot { Name = botName, Server = new Server { Name = serverName, Channel = channelName }, MessageDelay = messageDelay };
+
+            var serializedString = File.ReadAllText(targetFilePath);
+            var botsData = await Json.ToObjectAsync<BotsData>(serializedString);
+
+            botsData.Bots.Add(bot);
+
+            var serializedBotsDataString = await Json.StringifyAsync(botsData);
+
+            File.WriteAllText("C:\\targets.json", serializedBotsDataString);
+
+            return bot;
+        }
     }
 }
