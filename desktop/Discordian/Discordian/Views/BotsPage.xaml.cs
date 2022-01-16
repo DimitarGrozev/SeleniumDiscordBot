@@ -8,6 +8,12 @@ using Windows.ApplicationModel;
 using Windows.Foundation.Collections;
 using Windows.ApplicationModel.AppService;
 using Discordian.Core.Helpers;
+using Windows.UI.Xaml.Media;
+using Windows.UI;
+using System.Diagnostics;
+using System.Linq;
+using Windows.System;
+using Windows.System.Diagnostics;
 
 namespace Discordian.Views
 {
@@ -17,6 +23,8 @@ namespace Discordian.Views
         public string ServerName { get; set; }
         public string ChannelName { get; set; }
         public int MessageDelay { get; set; }
+
+        private static bool IsConsoleAppRunning { get; set; }
 
 
         public BotsViewModel ViewModel { get; } = new BotsViewModel();
@@ -58,7 +66,22 @@ namespace Discordian.Views
 
         private async void StartStopBot_Click(object sender, RoutedEventArgs e)
         {
-            await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync("Id");
+            var button = (sender as Button);
+
+            if (!IsConsoleAppRunning)
+            {
+                await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync("Id");
+
+                button.Foreground = new SolidColorBrush(Colors.Green);
+            }
+            else
+            {
+                var valueSet = new ValueSet();
+                valueSet.Add("terminate", true);
+                button.Foreground = new SolidColorBrush(Colors.Red);
+            }
+
+            IsConsoleAppRunning = !IsConsoleAppRunning;
         }
 
         private async void SendRequest_Click(object sender, RoutedEventArgs e)
@@ -78,7 +101,7 @@ namespace Discordian.Views
 
             if (App.Connection != null)
             {
-                AppServiceResponse response = await App.Connection.SendMessageAsync(valueSet);
+                var response = await App.Connection.SendMessageAsync(valueSet);
                 //var text = "Received response: " + response.Message["response"] as string;
             }
         }

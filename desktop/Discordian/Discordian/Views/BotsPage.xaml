@@ -22,13 +22,13 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <FontIcon
                     Grid.Column="0"
                     VerticalAlignment="Center"
                     FontSize="32"
-                    Glyph="&#xE13D;" />
+                    Glyph="&#xE13D;"
+                    />
                 <StackPanel
                     Grid.Column="1"
                     Margin="{StaticResource SmallLeftMargin}"
@@ -36,24 +36,15 @@
                     <TextBlock Style="{ThemeResource ListTitleStyle}" Text="{x:Bind Name}"/>
                 </StackPanel>
                 <Button
-                    Click="StartStopBot_Click"
-                    Grid.Column="2"
-                    >
-                    <FontIcon
-                    VerticalAlignment="Center"
-                    HorizontalAlignment="Right"
-                    FontSize="24"
-                    Glyph="&#xE102;" />
-                </Button>
-                <Button
                     Click="SendRequest_Click"
-                    Grid.Column="3"
-                    Tag="{Binding Id}">
+                    Grid.Column="2"
+                    Tag="{Binding Id}"
+                    Background="Transparent">
                     <FontIcon
                     VerticalAlignment="Center"
                     HorizontalAlignment="Right"
                     FontSize="24"
-                    Glyph="&#xE109;" />
+                    Glyph="&#xE768;" />
                 </Button>
             </Grid>
         </DataTemplate>
@@ -80,6 +71,7 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <TextBlock
                     Grid.Column="0"
@@ -93,13 +85,24 @@
                     Click="ShowBotCreationDialog"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Center"
-                    Grid.Column="1">
+                    Grid.Column="1"
+                    Background="Transparent">
                     <FontIcon
-                    FontSize="16"
+                    FontSize="24"
                     Glyph="&#xE109;" />
                 </Button>
-
-
+                <Button
+                    Click="StartStopBot_Click"
+                    Grid.Column="2"
+                    Foreground="Red"
+                    Background="Transparent">
+                    <FontIcon
+                    x:Name="StartStopIcon"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Right"
+                    FontSize="24"
+                    Glyph="&#xE7E8;" />
+                </Button>
             </Grid>
         </DataTemplate>
         <DataTemplate x:Key="MinimalListHeaderTemplate">
