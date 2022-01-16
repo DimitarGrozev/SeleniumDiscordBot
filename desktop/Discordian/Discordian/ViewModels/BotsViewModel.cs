@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using Discordian.Core.Models;
-using Discordian.Core.Services;
+using Discordian.Services;
 
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Uwp.UI.Controls;
@@ -31,17 +31,14 @@ namespace Discordian.ViewModels
         {
             SampleItems.Clear();
             
-            var data = await DiscordianDbContext.GetBotList();
+            var data = await DiscordianDbContext.GetBotListAsync();
 
             foreach (var item in data)
             {
                 SampleItems.Add(item);
             }
 
-            if (viewState == ListDetailsViewState.Both)
-            {
-                Selected = SampleItems.First();
-            }
+            
         }
     }
 }

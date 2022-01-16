@@ -1,10 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace Discordian.Core.Models
 {
     public class Bot
     {
+        [JsonPropertyName("id")]
+        public Guid Id { get; set; }
+
         [JsonPropertyName("name")]
         public string Name { get; set; }
 

@@ -1,8 +1,8 @@
 ﻿using System;
-
 using Discordian.Services;
-
 using Windows.ApplicationModel.Activation;
+using Windows.ApplicationModel.AppService;
+using Windows.ApplicationModel.Background;
 using Windows.UI.Xaml;
 
 namespace Discordian
@@ -10,6 +10,10 @@ namespace Discordian
     public sealed partial class App : Application
     {
         private Lazy<ActivationService> _activationService;
+
+        public static AppServiceConnection Connection = null;
+
+        BackgroundTaskDeferral appServiceDeferral = null;
 
         private ActivationService ActivationService
         {
@@ -23,6 +27,29 @@ namespace Discordian
 
             // Deferred execution until used. Check https://docs.microsoft.com/dotnet/api/system.lazy-1 for further info on Lazy<T> class.
             _activationService = new Lazy<ActivationService>(CreateActivationService);
+        }
+
+        protected override void OnBackgroundActivated(BackgroundActivatedEventArgs args)
+        {
+            base.OnBackgroundActivated(args);
+
+            if (args.TaskInstance.TriggerDetails is AppServiceTriggerDetails)
+            {
+                appServiceDeferral = args.TaskInstance.GetDeferral();
+                args.TaskInstance.Canceled += OnTaskCanceled; // Associate a cancellation handler with the background task.
+
+                AppServiceTriggerDetails details = args.TaskInstance.TriggerDetails as AppServiceTriggerDetails;
+                Connection = details.AppServiceConnection;
+            }
+        }
+
+        private void OnTaskCanceled(IBackgroundTaskInstance sender, BackgroundTaskCancellationReason reason)
+        {
+            if (this.appServiceDeferral != null)
+            {
+                // Complete the service deferral.
+                this.appServiceDeferral.Complete();
+            }
         }
 
         protected override async void OnLaunched(LaunchActivatedEventArgs args)

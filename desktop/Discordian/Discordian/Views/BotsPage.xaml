@@ -21,6 +21,8 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <FontIcon
                     Grid.Column="0"
@@ -31,8 +33,28 @@
                     Grid.Column="1"
                     Margin="{StaticResource SmallLeftMargin}"
                     VerticalAlignment="Center">
-                    <TextBlock Style="{ThemeResource ListTitleStyle}" Text="{x:Bind Name}" />
+                    <TextBlock Style="{ThemeResource ListTitleStyle}" Text="{x:Bind Name}"/>
                 </StackPanel>
+                <Button
+                    Click="StartStopBot_Click"
+                    Grid.Column="2"
+                    >
+                    <FontIcon
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Right"
+                    FontSize="24"
+                    Glyph="&#xE102;" />
+                </Button>
+                <Button
+                    Click="SendRequest_Click"
+                    Grid.Column="3"
+                    Tag="{Binding Id}">
+                    <FontIcon
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Right"
+                    FontSize="24"
+                    Glyph="&#xE109;" />
+                </Button>
             </Grid>
         </DataTemplate>
 
@@ -67,8 +89,8 @@
                     Style="{StaticResource ListTitleStyle}"
                     Text="{Binding}" />
                 <Button
-                    x:Name="CreateBotButton"
-                    Click="CreateBotButton_Click"
+                    x:Name="ShowBotCreationDialogButton"
+                    Click="ShowBotCreationDialog"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Center"
                     Grid.Column="1">
@@ -76,8 +98,8 @@
                     FontSize="16"
                     Glyph="&#xE109;" />
                 </Button>
-                
-                
+
+
             </Grid>
         </DataTemplate>
         <DataTemplate x:Key="MinimalListHeaderTemplate">
@@ -129,8 +151,8 @@
                 <TextBox Text="{x:Bind ChannelName, Mode=TwoWay}" Header="Channel name"></TextBox>
                 <muxc:NumberBox Header="Message delay:" Value="{x:Bind MessageDelay, Mode=TwoWay}" PlaceholderText="Milliseconds" />
 
-                <Button Content="Add" x:Name="addBotBtn" Click="addBotBtn_Click" Margin="5,0" Width="100" />
-                <Button Content="Cancel" x:Name="cancelBtn" Click="cancelBtn_Click" Margin="5,0" Width="100" />
+                <Button Content="Add" x:Name="addBotBtn" Click="CreateBotButton_Click" Margin="5,0" Width="100" />
+                <Button Content="Cancel" x:Name="cancelBtn" Click="CancelButton_Click" Margin="5,0" Width="100" />
             </StackPanel>
         </ContentDialog>
     </Grid>

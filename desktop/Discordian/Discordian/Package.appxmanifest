@@ -5,7 +5,9 @@
   xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
   xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
   xmlns:genTemplate="http://schemas.microsoft.com/appx/developer/windowsTemplateStudio"
-  IgnorableNamespaces="uap mp genTemplate">
+  xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  IgnorableNamespaces="uap mp genTemplate rescap">
 
   <Identity
     Name="0E3B9D02-236F-4DFA-9A4A-6A32D4873B17"
@@ -41,14 +43,25 @@
         <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png"/>
         <uap:SplashScreen Image="Assets\SplashScreen.png" />
       </uap:VisualElements>
-
       <Extensions>
+        <uap:Extension Category="windows.appService">
+          <uap:AppService Name="UWPApp"/>
+        </uap:Extension>
+        <desktop:Extension Category="windows.fullTrustProcess" Executable="BotConsole\ConsoleApp37.exe">
+          <desktop:FullTrustProcess>
+            <desktop:ParameterGroup GroupId="Id" Parameters="test"/>
+          </desktop:FullTrustProcess>
+        </desktop:Extension>
       </Extensions>
     </Application>
   </Applications>
 
   <Capabilities>
+    <rescap:Capability Name="runFullTrust"/>
+    <rescap:Capability Name="broadFileSystemAccess" />
     <Capability Name="internetClient" />
+    <uap:Capability Name="picturesLibrary"/>
+    <uap:Capability Name="videosLibrary"/>
   </Capabilities>
 
   <genTemplate:Metadata>
