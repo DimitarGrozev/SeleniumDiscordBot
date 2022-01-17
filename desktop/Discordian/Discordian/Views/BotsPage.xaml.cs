@@ -1,19 +1,20 @@
 ﻿using System;
 using Discordian.Services;
 using Discordian.ViewModels;
-
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.ApplicationModel;
 using Windows.Foundation.Collections;
-using Windows.ApplicationModel.AppService;
 using Discordian.Core.Helpers;
 using Windows.UI.Xaml.Media;
 using Windows.UI;
 using System.Diagnostics;
-using System.Linq;
+using System.Collections.Generic;
 using Windows.System;
 using Windows.System.Diagnostics;
+using System.Linq;
+using Discordian.Utilities;
+using Windows.UI.Xaml.Controls.Primitives;
 
 namespace Discordian.Views
 {
@@ -56,6 +57,11 @@ namespace Discordian.Views
 
             AddBotContentDialog.Hide();
 
+            this.BotNameTextBox.Text = string.Empty;
+            this.ServerNameTextBox.Text = string.Empty;
+            this.ChannelNameTextBox.Text = string.Empty;
+            this.MessageDelayNumberBox.Text = string.Empty;
+            
             await ViewModel.LoadDataAsync(ListDetailsViewControl.ViewState);
         }
 
@@ -66,19 +72,35 @@ namespace Discordian.Views
 
         private async void StartStopBot_Click(object sender, RoutedEventArgs e)
         {
-            var button = (sender as Button);
+            var button = sender as Button;
 
             if (!IsConsoleAppRunning)
             {
                 await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync("Id");
 
                 button.Foreground = new SolidColorBrush(Colors.Green);
+                ToolTipService.SetToolTip(button, "Terminate");
             }
             else
             {
                 var valueSet = new ValueSet();
                 valueSet.Add("terminate", true);
                 button.Foreground = new SolidColorBrush(Colors.Red);
+                var diagnosticAccessStatus = await AppDiagnosticInfo.RequestAccessAsync();
+                ToolTipService.SetToolTip(button, "Launch");
+
+                if (diagnosticAccessStatus == DiagnosticAccessStatus.Allowed)
+                {
+                    var processesInfo = ProcessDiagnosticInfo.GetForProcesses();
+
+                    var processInfo = processesInfo.Where(x => x.ExecutableFileName == "ConsoleApp37.exe").FirstOrDefault();
+
+                    if (processInfo != null)
+                    {
+                        var process =  Process.GetProcessesByName(processInfo.ExecutableFileName);
+                        
+                    }
+                }
             }
 
             IsConsoleAppRunning = !IsConsoleAppRunning;
@@ -87,23 +109,43 @@ namespace Discordian.Views
         private async void SendRequest_Click(object sender, RoutedEventArgs e)
         {
             var id = Guid.Parse((sender as Button).Tag.ToString());
-            var credentials = await DiscordianDbContext.GetCredentialsAsync();
-            var appSettings = await DiscordianDbContext.GetAppSettingsAsync();
-            var messages = await DiscordianDbContext.GetAllMessagesAsync();
-            var bot = await DiscordianDbContext.FindBotByIdAsync(id);
 
-
-            ValueSet valueSet = new ValueSet();
-            valueSet.Add("credentials", await Json.StringifyAsync(credentials));
-            valueSet.Add("appSettings", await Json.StringifyAsync(appSettings));
-            valueSet.Add("messages", await Json.StringifyAsync(messages));
-            valueSet.Add("bot", await Json.StringifyAsync(bot));
-
-            if (App.Connection != null)
+            try
             {
-                var response = await App.Connection.SendMessageAsync(valueSet);
-                //var text = "Received response: " + response.Message["response"] as string;
+                var credentials = await DiscordianDbContext.GetCredentialsAsync();
+                var appSettings = await DiscordianDbContext.GetAppSettingsAsync();
+                var messages = await DiscordianDbContext.GetAllMessagesAsync();
+                var bot = await DiscordianDbContext.FindBotByIdAsync(id);
+
+
+                ValueSet valueSet = new ValueSet();
+                valueSet.Add("credentials", await Json.StringifyAsync(credentials));
+                valueSet.Add("appSettings", await Json.StringifyAsync(appSettings));
+                valueSet.Add("messages", await Json.StringifyAsync(messages));
+                valueSet.Add("bot", await Json.StringifyAsync(bot));
+
+                if (App.Connection != null)
+                {
+                    var response = await App.Connection.SendMessageAsync(valueSet);
+                }
             }
+            catch(ArgumentException ex)
+            {
+               //TODO: Implement notification if bot fails to send data
+            }
+        }
+        private async void ShowDeleteBotFlyout_Click(object sender, RoutedEventArgs e)
+        {
+            Flyout.ShowAttachedFlyout(sender as Button);
+        }
+
+        private async void DeleteConfirmation_Click(object sender, RoutedEventArgs e)
+        {
+            var id = Guid.Parse((sender as Button).Tag.ToString());
+
+            await DiscordianDbContext.DeleteBotById(id);
+
+            Frame.Navigate(this.GetType());
         }
     }
 }

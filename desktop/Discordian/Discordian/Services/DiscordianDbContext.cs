@@ -18,6 +18,16 @@ namespace Discordian.Services
         private readonly static string targetsFilePath = "targets.json";
         private readonly static string appSettingsFilePath = "appSettings.json";
         private readonly static string credentialsFilePath = "credentials.json";
+        private readonly static string messagesFilePath = "messages.json";
+
+        public static async Task Initialize()
+        {
+            if (!await AppFilesExist())
+            {
+                await InitializeAppSettings();
+                await InitializeMessages();
+            }
+        }
 
         public static async Task<Messages> GetAllMessagesAsync()
         {
@@ -49,7 +59,7 @@ namespace Discordian.Services
 
         public static async Task<Credentials> GetCredentialsAsync()
         {
-            var file = await ApplicationData.Current.LocalFolder.GetFileAsync(credentialsFilePath);
+            var file = await ApplicationData.Current.LocalFolder.CreateFileAsync(credentialsFilePath, CreationCollisionOption.OpenIfExists);
             var serializedString = await FileIO.ReadTextAsync(file);
             var credentials = await Json.ToObjectAsync<Credentials>(serializedString);
 
@@ -63,7 +73,7 @@ namespace Discordian.Services
 
         public static async Task<AppSettings> GetAppSettingsAsync()
         {
-            var file = await ApplicationData.Current.LocalFolder.GetFileAsync(appSettingsFilePath);
+            var file = await ApplicationData.Current.LocalFolder.CreateFileAsync(appSettingsFilePath, CreationCollisionOption.OpenIfExists);
             var serializedString = await FileIO.ReadTextAsync(file);
             var appSettings = await Json.ToObjectAsync<AppSettings>(serializedString);
 
@@ -75,7 +85,7 @@ namespace Discordian.Services
             throw new ArgumentNullException("App settings could not be found!");
         }
 
-        public static async Task<IEnumerable<Bot>> GetBotListAsync()
+        public static async Task<List<Bot>> GetBotListAsync()
         {
             try
             {
@@ -114,5 +124,56 @@ namespace Discordian.Services
 
             return bot;
         }
+
+        public static async Task DeleteBotById(Guid id)
+        {
+            var bots = await GetBotListAsync();
+            var bot = bots.FirstOrDefault(b => b.Id == id);
+
+            if(bot != null)
+            {
+                bots.Remove(bot);
+
+                var file = await ApplicationData.Current.LocalFolder.GetFileAsync(targetsFilePath);
+                var botsData = new BotsData { Bots = bots };
+                var serializedString = await Json.StringifyAsync(botsData);
+
+                await FileIO.WriteTextAsync(file,serializedString);
+            }
+        }
+
+
+        private static async Task InitializeAppSettings()
+        {
+            var appSettingsFile = await ApplicationData.Current.LocalFolder.CreateFileAsync(appSettingsFilePath, CreationCollisionOption.FailIfExists);
+            var messagesFile = await ApplicationData.Current.LocalFolder.CreateFileAsync(messagesFilePath, CreationCollisionOption.FailIfExists);
+            var appSettings = new AppSettings { MessagesFilePath = messagesFile.Path };
+
+            await FileIO.WriteTextAsync(appSettingsFile, await Json.StringifyAsync(appSettings));
+        }
+
+        private static async Task InitializeMessages()
+        {
+            var messagesFile = await ApplicationData.Current.LocalFolder.GetFileAsync(messagesFilePath);
+            var defaultMessagesString = File.ReadAllText("Data\\messages.json");
+
+            await FileIO.WriteTextAsync(messagesFile, defaultMessagesString);
+        }
+
+        private static async Task<bool> AppFilesExist()
+        {
+            try
+            {
+                var appSettings = await ApplicationData.Current.LocalFolder.GetFileAsync(appSettingsFilePath);
+                var messages = await ApplicationData.Current.LocalFolder.GetFileAsync(messagesFilePath);
+            }
+            catch(Exception)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
     }
 }

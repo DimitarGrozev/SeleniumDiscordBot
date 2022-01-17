@@ -20,29 +20,57 @@
             <Grid Height="60">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="180" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <FontIcon
                     Grid.Column="0"
                     VerticalAlignment="Center"
-                    FontSize="32"
-                    Glyph="&#xE13D;"
-                    />
+                    FontSize="24"
+                    Glyph="&#xE13D;"/>
                 <StackPanel
+                    Orientation="Horizontal"
                     Grid.Column="1"
                     Margin="{StaticResource SmallLeftMargin}"
-                    VerticalAlignment="Center">
-                    <TextBlock Style="{ThemeResource ListTitleStyle}" Text="{x:Bind Name}"/>
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Stretch">
+                    <TextBlock HorizontalAlignment="Stretch" Style="{ThemeResource ListTitleStyle}" Text="{x:Bind Name}"/>
                 </StackPanel>
                 <Button
-                    Click="SendRequest_Click"
                     Grid.Column="2"
                     Tag="{Binding Id}"
-                    Background="Transparent">
+                    Background="Transparent"
+                    Click="ShowDeleteBotFlyout_Click"
+                    ToolTipService.ToolTip="Delete">
                     <FontIcon
                     VerticalAlignment="Center"
-                    HorizontalAlignment="Right"
+                    FontSize="24"
+                    Glyph="&#xe74d;" />
+                    <FlyoutBase.AttachedFlyout>
+                        <Flyout>
+                            <StackPanel>
+                                <TextBlock Style="{ThemeResource BaseTextBlockStyle}" Text="Are you sure you want to delete this bot?" Margin="0,0,0,12" />
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="0.5*"></ColumnDefinition>
+                                        <ColumnDefinition Width="0.5*"></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+                                    <Button Grid.Column="0" Content="Cancel" HorizontalAlignment="Center"  VerticalAlignment="Center"/>
+                                    <Button Grid.Column="1" Tag="{Binding Id}" HorizontalAlignment="Center" Click="DeleteConfirmation_Click" Content="Yes"  VerticalAlignment="Center"/>
+                                </Grid>
+                            </StackPanel>
+                        </Flyout>
+                    </FlyoutBase.AttachedFlyout>
+                </Button>
+                <Button
+                    Grid.Column="3"
+                    Click="SendRequest_Click"
+                    Tag="{Binding Id}"
+                    Background="Transparent"
+                    ToolTipService.ToolTip="Start bot">
+                    <FontIcon
+                    VerticalAlignment="Center"
                     FontSize="24"
                     Glyph="&#xE768;" />
                 </Button>
@@ -86,7 +114,8 @@
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Center"
                     Grid.Column="1"
-                    Background="Transparent">
+                    Background="Transparent"
+                    ToolTipService.ToolTip="Add bot">
                     <FontIcon
                     FontSize="24"
                     Glyph="&#xE109;" />
@@ -95,6 +124,7 @@
                     Click="StartStopBot_Click"
                     Grid.Column="2"
                     Foreground="Red"
+                    ToolTipService.ToolTip="Launch"
                     Background="Transparent">
                     <FontIcon
                     x:Name="StartStopIcon"
@@ -146,16 +176,30 @@
 
         <ContentDialog
                     x:Name="AddBotContentDialog"
-                    Title="Add bot">
+                    Title="Add bot"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center">
             <!-- Content body -->
             <StackPanel>
-                <TextBox Text="{x:Bind BotName, Mode=TwoWay}" Header="Bot name"></TextBox>
-                <TextBox Text="{x:Bind ServerName, Mode=TwoWay}" Header="Server name"></TextBox>
-                <TextBox Text="{x:Bind ChannelName, Mode=TwoWay}" Header="Channel name"></TextBox>
-                <muxc:NumberBox Header="Message delay:" Value="{x:Bind MessageDelay, Mode=TwoWay}" PlaceholderText="Milliseconds" />
+                <TextBox Margin="0,0,0,10" x:Name="BotNameTextBox" Text="{x:Bind BotName, Mode=TwoWay}" Header="Bot name" PlaceholderText="Your bot name..."></TextBox>
+                <TextBox Margin="0,0,0,10" x:Name="ServerNameTextBox" Text="{x:Bind ServerName, Mode=TwoWay}" Header="Server name" PlaceholderText="Server you want to target..."></TextBox>
+                <TextBox Margin="0,0,0,10" x:Name="ChannelNameTextBox" Text="{x:Bind ChannelName, Mode=TwoWay}" Header="Channel name" PlaceholderText="Channel you want to target..."></TextBox>
+                <muxc:NumberBox Margin="0,0,0,10" x:Name="MessageDelayNumberBox" Header="Message delay:" Value="{x:Bind MessageDelay, Mode=TwoWay}" PlaceholderText="Delay in seconds" />
 
-                <Button Content="Add" x:Name="addBotBtn" Click="CreateBotButton_Click" Margin="5,0" Width="100" />
-                <Button Content="Cancel" x:Name="cancelBtn" Click="CancelButton_Click" Margin="5,0" Width="100" />
+                <StackPanel Margin="20,10,0,0">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Row="0" Grid.Column="0" Content="Cancel" x:Name="cancelBtn" Click="CancelButton_Click" Margin="5,0" Width="100"  HorizontalAlignment="Center"/>
+                        <Button Grid.Row="0" Grid.Column="1" Content="Add" x:Name="addBotBtn" Click="CreateBotButton_Click" Margin="5,0" Width="100"  HorizontalAlignment="Center"/>
+                    </Grid>
+                </StackPanel>
+
             </StackPanel>
         </ContentDialog>
     </Grid>

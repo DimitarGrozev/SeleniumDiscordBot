@@ -13,7 +13,7 @@ namespace Discordian
 
         public static AppServiceConnection Connection = null;
 
-        BackgroundTaskDeferral appServiceDeferral = null;
+        public static BackgroundTaskDeferral appServiceDeferral = null;
 
         private ActivationService ActivationService
         {
@@ -45,10 +45,10 @@ namespace Discordian
 
         private void OnTaskCanceled(IBackgroundTaskInstance sender, BackgroundTaskCancellationReason reason)
         {
-            if (this.appServiceDeferral != null)
+            if (appServiceDeferral != null)
             {
                 // Complete the service deferral.
-                this.appServiceDeferral.Complete();
+                appServiceDeferral.Complete();
             }
         }
 
@@ -58,6 +58,8 @@ namespace Discordian
             {
                 await ActivationService.ActivateAsync(args);
             }
+
+            await DiscordianDbContext.Initialize();
         }
 
         protected override async void OnActivated(IActivatedEventArgs args)
