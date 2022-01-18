@@ -29,6 +29,12 @@ namespace Discordian.Services
             }
         }
 
+        public static async Task LogoutAsync()
+        {
+            var file = await ApplicationData.Current.LocalFolder.GetFileAsync(credentialsFilePath);
+            await file.DeleteAsync();
+        }
+
         public static async Task<Messages> GetAllMessagesAsync()
         {
             var file = await ApplicationData.Current.LocalFolder.GetFileAsync(messagesFilePath);

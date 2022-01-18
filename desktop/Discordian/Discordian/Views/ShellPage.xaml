@@ -57,5 +57,10 @@
         <Grid>
             <Frame x:Name="shellFrame" />
         </Grid>
+        <winui:NavigationView.PaneFooter>
+            <StackPanel Orientation="Vertical">
+                <NavigationViewItem Icon="Back" Content="Logout" Tapped="NavigationViewItem_Tapped"/>
+            </StackPanel>
+        </winui:NavigationView.PaneFooter>
     </winui:NavigationView>
 </Page>
