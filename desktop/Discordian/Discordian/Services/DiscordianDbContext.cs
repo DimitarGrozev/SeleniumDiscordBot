@@ -31,9 +31,7 @@ namespace Discordian.Services
 
         public static async Task<Messages> GetAllMessagesAsync()
         {
-            var appSettings = await GetAppSettingsAsync();
-            var messagesPath = appSettings.MessagesFilePath;
-            var file = await ApplicationData.Current.LocalFolder.GetFileAsync(messagesPath);
+            var file = await ApplicationData.Current.LocalFolder.GetFileAsync(messagesFilePath);
             var serializedString = await FileIO.ReadTextAsync(file);
             var messages = await Json.ToObjectAsync<Messages>(serializedString);
 
@@ -130,7 +128,7 @@ namespace Discordian.Services
             var bots = await GetBotListAsync();
             var bot = bots.FirstOrDefault(b => b.Id == id);
 
-            if(bot != null)
+            if (bot != null)
             {
                 bots.Remove(bot);
 
@@ -138,7 +136,7 @@ namespace Discordian.Services
                 var botsData = new BotsData { Bots = bots };
                 var serializedString = await Json.StringifyAsync(botsData);
 
-                await FileIO.WriteTextAsync(file,serializedString);
+                await FileIO.WriteTextAsync(file, serializedString);
             }
         }
 
@@ -146,15 +144,14 @@ namespace Discordian.Services
         private static async Task InitializeAppSettings()
         {
             var appSettingsFile = await ApplicationData.Current.LocalFolder.CreateFileAsync(appSettingsFilePath, CreationCollisionOption.FailIfExists);
-            var messagesFile = await ApplicationData.Current.LocalFolder.CreateFileAsync(messagesFilePath, CreationCollisionOption.FailIfExists);
-            var appSettings = new AppSettings { MessagesFilePath = messagesFile.Path };
+            var appSettings = new AppSettings();
 
             await FileIO.WriteTextAsync(appSettingsFile, await Json.StringifyAsync(appSettings));
         }
 
         private static async Task InitializeMessages()
         {
-            var messagesFile = await ApplicationData.Current.LocalFolder.GetFileAsync(messagesFilePath);
+            var messagesFile = await ApplicationData.Current.LocalFolder.CreateFileAsync(messagesFilePath, CreationCollisionOption.FailIfExists);
             var defaultMessagesString = File.ReadAllText("Data\\messages.json");
 
             await FileIO.WriteTextAsync(messagesFile, defaultMessagesString);
@@ -167,7 +164,7 @@ namespace Discordian.Services
                 var appSettings = await ApplicationData.Current.LocalFolder.GetFileAsync(appSettingsFilePath);
                 var messages = await ApplicationData.Current.LocalFolder.GetFileAsync(messagesFilePath);
             }
-            catch(Exception)
+            catch (Exception)
             {
                 return false;
             }
