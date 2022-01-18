@@ -42,6 +42,23 @@ namespace Discordian.Services
 
             throw new ArgumentNullException("Messages could not be found!");
         }
+
+        public static async Task AuthenticatedAsync(string email, string password)
+        {
+            var credentials = new Credentials { Email = email, Password = password };
+            var serializedString = await Json.StringifyAsync(credentials);
+            var file = await ApplicationData.Current.LocalFolder.CreateFileAsync(credentialsFilePath, CreationCollisionOption.OpenIfExists);
+
+            await FileIO.WriteTextAsync(file, serializedString);
+        }
+
+        public static async Task<bool> IsAuthenticatedAsync()
+        {
+            var credentials = await GetCredentialsAsync();
+
+            return credentials != null;
+        }
+
         public static async Task<Bot> FindBotByIdAsync(Guid id)
         {
             var bots = await GetBotListAsync();
@@ -66,7 +83,7 @@ namespace Discordian.Services
                 return credentials;
             }
 
-            throw new ArgumentNullException("Credentials could not be found!");
+            return null;
         }
 
         public static async Task<AppSettings> GetAppSettingsAsync()

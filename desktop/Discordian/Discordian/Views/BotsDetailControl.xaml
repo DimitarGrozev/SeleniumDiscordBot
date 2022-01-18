@@ -31,6 +31,8 @@
                     Style="{StaticResource DetailSubTitleStyle}"
                     Text="Channel:" />
                 <TextBlock Style="{StaticResource DetailBodyBaseMediumStyle}" Text="{x:Bind ListMenuItem.Server.Channel, Mode=OneWay}" />
+                <TextBlock Style="{StaticResource DetailSubTitleStyle}" Text="Delay in seconds:" />
+                <TextBlock Style="{StaticResource DetailBodyBaseMediumStyle}" Text="{x:Bind ListMenuItem.MessageDelay, Mode=OneWay}" />
             </StackPanel>
         </StackPanel>
     </ScrollViewer>
