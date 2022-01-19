@@ -1,9 +1,11 @@
-﻿using Discordian.Services;
+﻿using Discordian.Core.Helpers;
+using Discordian.Services;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using Windows.ApplicationModel;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
@@ -36,17 +38,33 @@ namespace Discordian.Views
                 Window.Current.Content = new Lazy<UIElement>(CreateShell).Value ?? new Frame();
                 Window.Current.Activate();
                 Frame.Navigate(typeof(BotsPage));
+
+                return;
             }
+
+            await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync("Id");
         }
 
         private async void Button_Click(object sender, RoutedEventArgs e)
         {
-            await DiscordianDbContext.AuthenticatedAsync(this.Email.Text, this.Password.Password);
 
-            Window.Current.Content = new Lazy<UIElement>(CreateShell).Value ?? new Frame();
-            Window.Current.Activate();
+            ValueSet valueSet = new ValueSet();
+            valueSet.Add("request", "login");
+            valueSet.Add("email", this.Email.Text);
+            valueSet.Add("password", this.Password.Password);
 
-            Frame.Navigate(typeof(BotsPage));
+            if (App.Connection != null)
+            {
+                var response = await App.Connection.SendMessageAsync(valueSet);
+                var token = response.Message["token"].ToString();
+
+                Window.Current.Content = new Lazy<UIElement>(CreateShell).Value ?? new Frame();
+                Window.Current.Activate();
+                Frame.Navigate(typeof(BotsPage));
+
+                var credentials = await DiscordianDbContext.AuthenticateAsync(this.Email.Text, this.Password.Password, token);
+            }
+
         }
 
         private UIElement CreateShell()

@@ -49,11 +49,24 @@ namespace Discordian.Services
             throw new ArgumentNullException("Messages could not be found!");
         }
 
-        public static async Task AuthenticatedAsync(string email, string password)
+        public static async Task<Credentials> AuthenticateAsync(string email, string password, string token)
         {
-            var credentials = new Credentials { Email = email, Password = password };
+            var credentials = new Credentials { Email = email, Password = password, Token = token };
             var serializedString = await Json.StringifyAsync(credentials);
             var file = await ApplicationData.Current.LocalFolder.CreateFileAsync(credentialsFilePath, CreationCollisionOption.OpenIfExists);
+
+            await FileIO.WriteTextAsync(file, serializedString);
+
+            return credentials;
+        }
+
+        public static async Task AppendTokenToCredentialsAsync(string token)
+        {
+            var credentials = await GetCredentialsAsync();
+            credentials.Token = token;
+
+            var file = await ApplicationData.Current.LocalFolder.GetFileAsync(credentialsFilePath);
+            var serializedString = await Json.StringifyAsync(credentials);
 
             await FileIO.WriteTextAsync(file, serializedString);
         }
