@@ -51,7 +51,8 @@ namespace Discordian.Services
 
         public static async Task<Credentials> AuthenticateAsync(string email, string password, string token)
         {
-            var credentials = new Credentials { Email = email, Password = password, Token = token };
+            var sanitizedToken = token.Replace("\"", "");
+            var credentials = new Credentials { Email = email, Password = password, Token = sanitizedToken };
             var serializedString = await Json.StringifyAsync(credentials);
             var file = await ApplicationData.Current.LocalFolder.CreateFileAsync(credentialsFilePath, CreationCollisionOption.OpenIfExists);
 
