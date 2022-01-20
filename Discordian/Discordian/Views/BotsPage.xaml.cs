@@ -119,6 +119,7 @@ namespace Discordian.Views
 
 
                 ValueSet valueSet = new ValueSet();
+                valueSet.Add("request", "start");
                 valueSet.Add("credentials", await Json.StringifyAsync(credentials));
                 valueSet.Add("appSettings", await Json.StringifyAsync(appSettings));
                 valueSet.Add("messages", await Json.StringifyAsync(messages));
