@@ -58,11 +58,14 @@ namespace Discordian.Views
                 var response = await App.Connection.SendMessageAsync(valueSet);
                 var token = response.Message["token"].ToString();
 
-                Window.Current.Content = new Lazy<UIElement>(CreateShell).Value ?? new Frame();
-                Window.Current.Activate();
-                Frame.Navigate(typeof(BotsPage));
+                if (!string.IsNullOrEmpty(token))
+                {
+                    Window.Current.Content = new Lazy<UIElement>(CreateShell).Value ?? new Frame();
+                    Window.Current.Activate();
+                    Frame.Navigate(typeof(BotsPage));
 
-                var credentials = await DiscordianDbContext.AuthenticateAsync(this.Email.Text, this.Password.Password, token);
+                    var credentials = await DiscordianDbContext.AuthenticateAsync(this.Email.Text, this.Password.Password, token);
+                }
             }
 
         }
