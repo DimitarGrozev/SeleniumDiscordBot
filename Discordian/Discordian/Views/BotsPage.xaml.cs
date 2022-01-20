@@ -135,7 +135,7 @@ namespace Discordian.Views
                //TODO: Implement notification if bot fails to send data
             }
         }
-        private async void ShowDeleteBotFlyout_Click(object sender, RoutedEventArgs e)
+        private void ShowDeleteBotFlyout_Click(object sender, RoutedEventArgs e)
         {
             Flyout.ShowAttachedFlyout(sender as Button);
         }

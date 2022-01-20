@@ -20,6 +20,8 @@ namespace Discordian.BotLauncher
 		/// </summary>
 		static void Main(string[] args)
 		{
+			var appServiceExit = new AutoResetEvent(false);
+
 			Thread appServiceThread = new Thread(new ThreadStart(ThreadProc));
 			appServiceThread.Start();
 			Console.ForegroundColor = ConsoleColor.Yellow;
@@ -27,6 +29,8 @@ namespace Discordian.BotLauncher
 			Console.WriteLine("**** Discord bot launcher ****");
 			Console.WriteLine("*****************************");
 			Console.ReadLine();
+
+			appServiceExit.WaitOne();
 		}
 
 		/// <summary>

@@ -13,6 +13,7 @@ namespace Discordian.BotLauncher
     public class DiscordBotClient
     {
         private const string channelsList = "content-2a4AW9";
+        private const string discordLoginUrl = "https://discord.com/login";
         private const string targetUrl = "https://discord.com/channels/@me";
 
         private readonly Credentials credentials;
@@ -30,8 +31,11 @@ namespace Discordian.BotLauncher
 
         public void Launch()
         {
-            var driver = new EdgeDriver();
-           
+            var chromeDriverService = ChromeDriverService.CreateDefaultService();
+            chromeDriverService.HideCommandPromptWindow = true;
+
+            var driver = new ChromeDriver(chromeDriverService);
+
             driver.Navigate().GoToUrl(targetUrl);
             Thread.Sleep(2000);
 
@@ -88,10 +92,15 @@ namespace Discordian.BotLauncher
 
         public string Login()
         {
+            var token = string.Empty;
+
+            var chromeDriverService = ChromeDriverService.CreateDefaultService();
+            chromeDriverService.HideCommandPromptWindow = true;
             var options = new ChromeOptions();
             options.EnableMobileEmulation("iPhone 8");
-            var driver = new ChromeDriver(options);
+            var driver = new ChromeDriver(chromeDriverService, options);
             driver.Navigate().GoToUrl(targetUrl);
+
             Thread.Sleep(2000);
 
             //Login
@@ -103,9 +112,28 @@ namespace Discordian.BotLauncher
 
             var loginButton = driver.FindElement(SelectorByAttributeValue("class", "marginBottom8-emkd0_ button-1cRKG6 button-f2h6uQ lookFilled-yCfaCM colorBrand-I6CyqQ sizeLarge-3mScP9 fullWidth-fJIsjq grow-2sR_-F"));
             loginButton.Click();
-            Thread.Sleep(5000);
 
-            var token = (driver as IJavaScriptExecutor).ExecuteScript(Scripts.getDiscordTokenFromBrowser).ToString();
+            Thread.Sleep(2000);
+
+            while (true)
+            {
+                try
+                {
+                    var verificationHeader = driver.FindElement(By.XPath("//iframe[contains(@src, 'captcha')]"));
+                    continue;
+                }
+                catch (Exception ex)
+                {
+                    break;
+                }
+            }
+
+            Thread.Sleep(2000);
+
+            if (!driver.Url.Contains(discordLoginUrl))
+            {
+                token = (driver as IJavaScriptExecutor).ExecuteScript(Scripts.getDiscordTokenFromBrowser).ToString();
+            }
 
             driver.Close();
 
