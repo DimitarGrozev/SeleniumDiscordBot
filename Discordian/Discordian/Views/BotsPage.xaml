@@ -120,19 +120,6 @@
                     FontSize="24"
                     Glyph="&#xE109;" />
                 </Button>
-                <Button
-                    Click="StartStopBot_Click"
-                    Grid.Column="2"
-                    Foreground="Red"
-                    ToolTipService.ToolTip="Launch"
-                    Background="Transparent">
-                    <FontIcon
-                    x:Name="StartStopIcon"
-                    VerticalAlignment="Center"
-                    HorizontalAlignment="Right"
-                    FontSize="24"
-                    Glyph="&#xE7E8;" />
-                </Button>
             </Grid>
         </DataTemplate>
         <DataTemplate x:Key="MinimalListHeaderTemplate">
@@ -181,11 +168,24 @@
             VerticalAlignment="Center">
             <!-- Content body -->
             <StackPanel>
+                <TextBox x:Name="BotIdTextBox" Text="{x:Bind BotId, Mode=TwoWay}" Visibility="Collapsed"></TextBox>
                 <TextBox Margin="0,0,0,10" x:Name="BotNameTextBox" Text="{x:Bind BotName, Mode=TwoWay}" Header="Bot name" PlaceholderText="Your bot name..."></TextBox>
                 <TextBox Margin="0,0,0,10" x:Name="ServerNameTextBox" Text="{x:Bind ServerName, Mode=TwoWay}" Header="Server name" PlaceholderText="Server you want to target..."></TextBox>
                 <TextBox Margin="0,0,0,10" x:Name="ChannelNameTextBox" Text="{x:Bind ChannelName, Mode=TwoWay}" Header="Channel name" PlaceholderText="Channel you want to target..."></TextBox>
                 <muxc:NumberBox Margin="0,0,0,10" x:Name="MessageDelayNumberBox" Header="Message delay:" Value="{x:Bind MessageDelay, Mode=TwoWay}" PlaceholderText="Delay in seconds" />
-
+                <StackPanel>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="50"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" Click="ChooseMessages_Click" Margin="10" HorizontalAlignment="Center" VerticalAlignment="Center">Choose messages</Button>
+                        <TextBox Grid.Column="1" x:Name="ChosenFileName" VerticalAlignment="Center" Width="150" IsReadOnly="True"></TextBox>
+                    </Grid>
+                </StackPanel>
                 <StackPanel Margin="20,10,0,0">
                     <Grid>
                         <Grid.RowDefinitions>
@@ -195,8 +195,8 @@
                             <ColumnDefinition Width="Auto"></ColumnDefinition>
                             <ColumnDefinition Width="Auto"></ColumnDefinition>
                         </Grid.ColumnDefinitions>
-                        <Button Grid.Row="0" Grid.Column="0" Content="Cancel" x:Name="cancelBtn" Click="CancelButton_Click" Margin="5,0" Width="100"  HorizontalAlignment="Center"/>
-                        <Button Grid.Row="0" Grid.Column="1" Content="Add" x:Name="addBotBtn" Click="CreateBotButton_Click" Margin="5,0" Width="100"  HorizontalAlignment="Center"/>
+                        <Button Grid.Row="0" Grid.Column="0" Content="Cancel" x:Name="cancelBtn" Click="CancelButton_Click" Margin="10" Width="100"  HorizontalAlignment="Center"/>
+                        <Button Grid.Row="0" Grid.Column="1" Content="Add" x:Name="addBotBtn" Click="CreateBotButton_Click" Margin="10" Width="100"  HorizontalAlignment="Center"/>
                     </Grid>
                 </StackPanel>
 

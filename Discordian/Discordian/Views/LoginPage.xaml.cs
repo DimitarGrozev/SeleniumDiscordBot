@@ -34,6 +34,8 @@ namespace Discordian.Views
 
         private async void LoginPage_Loaded(object sender, RoutedEventArgs e)
         {
+            await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync("Id");
+
             ProgressSpinner.IsActive = true;
             LoginForm.Opacity = 0.5;
 
@@ -48,8 +50,6 @@ namespace Discordian.Views
 
             LoginForm.Opacity = 1;
             ProgressSpinner.IsActive = false;
-
-            await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync("Id");
         }
 
         private async void Button_Click(object sender, RoutedEventArgs e)

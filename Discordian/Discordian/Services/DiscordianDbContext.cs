@@ -49,6 +49,20 @@ namespace Discordian.Services
             throw new ArgumentNullException("Messages could not be found!");
         }
 
+        public static async Task<Messages> GetMessagesForBotAsync(Guid id)
+        {
+            var file = await ApplicationData.Current.LocalFolder.GetFileAsync(id + ".json");
+            var serializedString = await FileIO.ReadTextAsync(file);
+            var messages = await Json.ToObjectAsync<Messages>(serializedString);
+
+            if (messages != null)
+            {
+                return messages;
+            }
+
+            throw new ArgumentNullException("Messages could not be found!");
+        }
+
         public static async Task<Credentials> AuthenticateAsync(string email, string password, string token)
         {
             var sanitizedToken = token.Replace("\"", "");
@@ -139,9 +153,33 @@ namespace Discordian.Services
             return new List<Bot>();
         }
 
-        public static async Task<Bot> CreateBotAsync(string botName, string serverName, string channelName, int messageDelay)
+        public static async Task<Guid> SaveMessagesForBotAsync(StorageFile chosenFile)
         {
-            var bot = new Bot { Id = Guid.NewGuid(), Name = botName, Server = new Server { Name = serverName, Channel = channelName }, MessageDelay = messageDelay };
+            var fileContent = await FileIO.ReadLinesAsync(chosenFile);
+            var messages = new Messages { Sentences = fileContent.ToList() };
+            var serializedMessages = await Json.StringifyAsync(messages);
+            var botId = Guid.NewGuid();
+
+            var localMessagesFile = await ApplicationData.Current.LocalFolder.CreateFileAsync(botId + ".json");
+            await FileIO.WriteTextAsync(localMessagesFile, serializedMessages);
+
+            return botId;
+        }
+
+        public static async Task DeleteMessagesForBotAsync(string fileName)
+        {
+            try
+            {
+                var file = await ApplicationData.Current.LocalFolder.GetFileAsync(fileName + ".json");
+
+                await file.DeleteAsync();
+            }
+            catch (Exception) { }
+        }
+
+        public static async Task<Bot> CreateBotAsync(string id, string botName, string serverName, string channelName, int messageDelay)
+        {
+            var bot = new Bot { Id = Guid.Parse(id), Name = botName, Server = new Server { Name = serverName, Channel = channelName }, MessageDelay = messageDelay };
 
             var file = await ApplicationData.Current.LocalFolder.CreateFileAsync(targetsFilePath, CreationCollisionOption.OpenIfExists);
             var serializedString = await FileIO.ReadTextAsync(file);
@@ -174,6 +212,7 @@ namespace Discordian.Services
                 var serializedString = await Json.StringifyAsync(botsData);
 
                 await FileIO.WriteTextAsync(file, serializedString);
+                await DeleteMessagesForBotAsync(id.ToString());
             }
         }
 

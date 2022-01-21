@@ -21,8 +21,13 @@ namespace Discordian.Views
     public sealed partial class BotsPage : Page
     {
         public string BotName { get; set; }
+
+        public string BotId { get; set; }
+
         public string ServerName { get; set; }
+
         public string ChannelName { get; set; }
+
         public int MessageDelay { get; set; }
 
         private static bool IsConsoleAppRunning { get; set; }
@@ -48,62 +53,40 @@ namespace Discordian.Views
 
         private async void CreateBotButton_Click(object sender, RoutedEventArgs e)
         {
+            var id = this.BotId;
             var name = this.BotName;
             var serverName = this.ServerName;
             var channelName = this.ChannelName;
             var messageDelay = this.MessageDelay;
 
-            await DiscordianDbContext.CreateBotAsync(name, serverName, channelName, messageDelay);
+            if (!string.IsNullOrEmpty(id))
+            {
+                await DiscordianDbContext.CreateBotAsync(id, name, serverName, channelName, messageDelay);
 
+                AddBotContentDialog.Hide();
+
+                this.BotNameTextBox.Text = string.Empty;
+                this.ServerNameTextBox.Text = string.Empty;
+                this.ChannelNameTextBox.Text = string.Empty;
+                this.MessageDelayNumberBox.Text = string.Empty;
+                this.ChosenFileName.Text = string.Empty;
+
+                await ViewModel.LoadDataAsync(ListDetailsViewControl.ViewState);
+            }
+        }
+
+        private async void CancelButton_Click(object sender, RoutedEventArgs e)
+        {
             AddBotContentDialog.Hide();
 
+            await DiscordianDbContext.DeleteMessagesForBotAsync(this.BotId);
+
+            this.BotIdTextBox.Text = string.Empty;
             this.BotNameTextBox.Text = string.Empty;
             this.ServerNameTextBox.Text = string.Empty;
             this.ChannelNameTextBox.Text = string.Empty;
             this.MessageDelayNumberBox.Text = string.Empty;
-            
-            await ViewModel.LoadDataAsync(ListDetailsViewControl.ViewState);
-        }
-
-        private void CancelButton_Click(object sender, RoutedEventArgs e)
-        {
-            AddBotContentDialog.Hide();
-        }
-
-        private async void StartStopBot_Click(object sender, RoutedEventArgs e)
-        {
-            var button = sender as Button;
-
-            if (!IsConsoleAppRunning)
-            {
-                await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync("Id");
-
-                button.Foreground = new SolidColorBrush(Colors.Green);
-                ToolTipService.SetToolTip(button, "Terminate");
-            }
-            else
-            {
-                var valueSet = new ValueSet();
-                valueSet.Add("terminate", true);
-                button.Foreground = new SolidColorBrush(Colors.Red);
-                var diagnosticAccessStatus = await AppDiagnosticInfo.RequestAccessAsync();
-                ToolTipService.SetToolTip(button, "Launch");
-
-                if (diagnosticAccessStatus == DiagnosticAccessStatus.Allowed)
-                {
-                    var processesInfo = ProcessDiagnosticInfo.GetForProcesses();
-
-                    var processInfo = processesInfo.Where(x => x.ExecutableFileName == "ConsoleApp37.exe").FirstOrDefault();
-
-                    if (processInfo != null)
-                    {
-                        var process =  Process.GetProcessesByName(processInfo.ExecutableFileName);
-                        
-                    }
-                }
-            }
-
-            IsConsoleAppRunning = !IsConsoleAppRunning;
+            this.ChosenFileName.Text = string.Empty;
         }
 
         private async void SendRequest_Click(object sender, RoutedEventArgs e)
@@ -114,7 +97,7 @@ namespace Discordian.Views
             {
                 var credentials = await DiscordianDbContext.GetCredentialsAsync();
                 var appSettings = await DiscordianDbContext.GetAppSettingsAsync();
-                var messages = await DiscordianDbContext.GetAllMessagesAsync();
+                var messages = await DiscordianDbContext.GetMessagesForBotAsync(id);
                 var bot = await DiscordianDbContext.FindBotByIdAsync(id);
 
 
@@ -130,11 +113,12 @@ namespace Discordian.Views
                     var response = await App.Connection.SendMessageAsync(valueSet);
                 }
             }
-            catch(ArgumentException ex)
+            catch (ArgumentException ex)
             {
-               //TODO: Implement notification if bot fails to send data
+                //TODO: Implement notification if bot fails to send data
             }
         }
+
         private void ShowDeleteBotFlyout_Click(object sender, RoutedEventArgs e)
         {
             Flyout.ShowAttachedFlyout(sender as Button);
@@ -147,6 +131,23 @@ namespace Discordian.Views
             await DiscordianDbContext.DeleteBotById(id);
 
             Frame.Navigate(this.GetType());
+        }
+
+        private async void ChooseMessages_Click(object sender, RoutedEventArgs e)
+        {
+            var picker = new Windows.Storage.Pickers.FileOpenPicker();
+            picker.ViewMode = Windows.Storage.Pickers.PickerViewMode.Thumbnail;
+            picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.Desktop;
+            picker.FileTypeFilter.Add(".txt");
+
+            Windows.Storage.StorageFile file = await picker.PickSingleFileAsync();
+
+            if (file != null)
+            {
+                var botId = await DiscordianDbContext.SaveMessagesForBotAsync(file);
+                this.ChosenFileName.Text = file.Name;
+                this.BotId = botId.ToString();
+            }
         }
     }
 }
