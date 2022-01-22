@@ -17,5 +17,8 @@ namespace Discordian.Core.Models
 
         [JsonPropertyName("messageDelay")]
         public int MessageDelay { get; set; }
+
+        [JsonPropertyName("credentials")]
+        public Account Credentials { get; set; }
     }
 }

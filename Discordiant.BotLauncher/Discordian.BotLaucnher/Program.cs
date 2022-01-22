@@ -90,12 +90,11 @@ namespace Discordian.BotLauncher
 			{
 				var email = args.Request.Message.FirstOrDefault(m => m.Key == "email").Value.ToString();
 				var password = args.Request.Message.FirstOrDefault(m => m.Key == "password").Value.ToString();
-				var credentials = new Credentials { Email = email, Password = password };
 
 				Console.WriteLine(string.Format("Received request to get token from browser"));
 
-				var discordBot = new DiscordBotClient(credentials, null, null, null);
-				var token = discordBot.Login();
+				var discordBot = new DiscordBotClient(email, password);
+				var token = discordBot.GetToken();
 
 				var message = new ValueSet();
 				message.Add("token", token);
@@ -105,13 +104,11 @@ namespace Discordian.BotLauncher
 			else
 			{
 				var bot = await Json.ToObjectAsync<Bot>(args.Request.Message["bot"].ToString());
-				var credentials = await Json.ToObjectAsync<Credentials>(args.Request.Message["credentials"].ToString());
-				var appSettings = await Json.ToObjectAsync<AppSettings>(args.Request.Message["appSettings"].ToString());
 				var messages = await Json.ToObjectAsync<Messages>(args.Request.Message["messages"].ToString());
 
 				Console.WriteLine(string.Format("Received request to start bot {0}", bot.Name));
 
-				var discordBot = new DiscordBotClient(credentials, appSettings, messages, bot);
+				var discordBot = new DiscordBotClient(messages, bot);
 				var thread = new Thread(new ThreadStart(discordBot.Launch));
 				thread.Start();
 

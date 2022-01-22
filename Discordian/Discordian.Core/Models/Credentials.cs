@@ -1,16 +1,11 @@
-﻿using System.Text.Json.Serialization;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace Discordian.Core.Models
 {
-    public class Credentials
-    {
-        [JsonPropertyName("email")]
-        public string Email { get; set; }
-
-        [JsonPropertyName("password")]
-        public string Password { get; set; }
-
-        [JsonPropertyName("token")]
-        public string Token { get; set; }
-    }
+	public class Credentials
+	{
+		public List<Account> Accounts { get; set; }
+	}
 }
