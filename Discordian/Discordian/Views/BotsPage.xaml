@@ -175,13 +175,13 @@
                         <ComboBox x:Name="EmailTextBox" IsEditable="True" ItemsSource="{x:Bind Mode=TwoWay, Path=Emails}" Header="Email" PlaceholderText="Discord email..." Width="289" SelectionChanged="EmailTextBox_SelectionChanged">
                             <ComboBoxItem IsEnabled="False">Choose an existing or enter new</ComboBoxItem>
                         </ComboBox>
-                        <PasswordBox x:Name="PasswordTextBox" Margin="0,0,0,10" Password="{x:Bind Mode=TwoWay, Path=Password}" Header="Password" PlaceholderText="Discord password..."/>
+                        <PasswordBox x:Name="PasswordTextBox" Margin="0,0,0,10" Header="Password" PlaceholderText="Discord password..."/>
                     </StackPanel>
-                    <TextBox x:Name="BotIdTextBox" Text="{x:Bind Mode=TwoWay, Path=BotId}" Visibility="Collapsed"/>
-                    <TextBox Margin="0,0,0,10" x:Name="BotNameTextBox" Text="{x:Bind Mode=TwoWay, Path=BotName}" Header="Bot name" PlaceholderText="Your bot name..."/>
-                    <TextBox Margin="0,0,0,10" x:Name="ServerNameTextBox" Text="{x:Bind Mode=TwoWay, Path=ServerName}" Header="Server name" PlaceholderText="Server you want to target..."/>
-                    <TextBox Margin="0,0,0,10" x:Name="ChannelNameTextBox" Text="{x:Bind Mode=TwoWay, Path=ChannelName}" Header="Channel name" PlaceholderText="Channel you want to target..."/>
-                    <muxc:NumberBox Margin="0,0,0,10" x:Name="MessageDelayNumberBox" Header="Message delay:" Value="{x:Bind Mode=TwoWay, Path=MessageDelay}" PlaceholderText="Delay in seconds" />
+                    <TextBox x:Name="BotIdTextBox" Visibility="Collapsed"/>
+                    <TextBox Margin="0,0,0,10" x:Name="BotNameTextBox" Header="Bot name" PlaceholderText="Your bot name..."/>
+                    <TextBox Margin="0,0,0,10" x:Name="ServerNameTextBox" Header="Server name" PlaceholderText="Server you want to target..."/>
+                    <TextBox Margin="0,0,0,10" x:Name="ChannelNameTextBox" Header="Channel name" PlaceholderText="Channel you want to target..."/>
+                    <muxc:NumberBox Margin="0,0,0,10" x:Name="MessageDelayNumberBox" Header="Message delay:" PlaceholderText="Delay in seconds" />
                     <StackPanel>
                         <Grid>
                             <Grid.RowDefinitions>

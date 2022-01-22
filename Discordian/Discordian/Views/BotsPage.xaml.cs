@@ -7,24 +7,13 @@ using Windows.Foundation.Collections;
 using Discordian.Core.Helpers;
 using System.Collections.Generic;
 using Windows.ApplicationModel;
+using System.Linq;
 
 namespace Discordian.Views
 {
     public sealed partial class BotsPage : Page
     {
         public List<string> Emails { get; set; }
-
-        public string Password { get; set; }
-
-        public string BotName { get; set; }
-
-        public string BotId { get; set; }
-
-        public string ServerName { get; set; }
-
-        public string ChannelName { get; set; }
-
-        public int MessageDelay { get; set; }
 
         public BotsViewModel ViewModel { get; } = new BotsViewModel();
 
@@ -43,6 +32,13 @@ namespace Discordian.Views
         private async void ShowBotCreationDialog(object sender, RoutedEventArgs e)
         {
             var emails = await DiscordianDbContext.GetSavedEmailsAsync();
+            var currentEmails = this.EmailTextBox.Items.Skip(1);
+
+            foreach (var item in currentEmails)
+            {
+                this.EmailTextBox.Items.Remove(item);
+            }
+
             emails.ForEach(a => this.EmailTextBox.Items.Add(a));
 
             await AddBotContentDialog.ShowAsync();
@@ -50,13 +46,13 @@ namespace Discordian.Views
 
         private async void CreateBotButton_Click(object sender, RoutedEventArgs e)
         {
-            var id = this.BotId;
-            var botName = this.BotName;
-            var serverName = this.ServerName;
-            var channelName = this.ChannelName;
-            var messageDelay = this.MessageDelay;
+            var id = this.BotIdTextBox.Text;
+            var botName = this.BotNameTextBox.Text;
+            var serverName = this.ServerNameTextBox.Text;
+            var channelName = this.ChannelNameTextBox.Text;
+            var messageDelay = int.Parse(this.MessageDelayNumberBox.Text);
             var email = this.EmailTextBox.Text;
-            var password = this.Password;
+            var password = this.PasswordTextBox.Password;
 
             if (this.InformationIsPresent(id, botName, serverName, channelName, messageDelay, email, password))
             {
@@ -99,6 +95,7 @@ namespace Discordian.Views
 
                 AddBotContentDialog.Hide();
 
+                this.BotIdTextBox.Text = string.Empty;
                 this.BotNameTextBox.Text = string.Empty;
                 this.ServerNameTextBox.Text = string.Empty;
                 this.ChannelNameTextBox.Text = string.Empty;
@@ -126,7 +123,8 @@ namespace Discordian.Views
         {
             AddBotContentDialog.Hide();
 
-            await DiscordianDbContext.DeleteMessagesForBotAsync(this.BotId);
+            var id = this.BotIdTextBox.Text;
+            await DiscordianDbContext.DeleteMessagesForBotAsync(id);
 
             this.BotIdTextBox.Text = string.Empty;
             this.BotNameTextBox.Text = string.Empty;
@@ -193,7 +191,7 @@ namespace Discordian.Views
             {
                 var botId = await DiscordianDbContext.SaveMessagesForBotAsync(file);
                 this.ChosenFileName.Text = file.Name;
-                this.BotId = botId.ToString();
+                this.BotIdTextBox.Text = botId.ToString();
             }
         }
 
