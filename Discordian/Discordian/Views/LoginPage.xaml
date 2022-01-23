@@ -5,13 +5,16 @@
     xmlns:local="using:Discordian.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     mc:Ignorable="d">
 
     <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
-        <StackPanel>
-            <TextBox x:Name="Email" Header="Email"></TextBox>
-            <PasswordBox x:Name="Password" Header="Password" Width="200" VerticalAlignment="Center"/>
+        <StackPanel x:Name="LoginForm">
+            <TextBox Margin="10" x:Name="Email" Header="Email"></TextBox>
+            <PasswordBox Margin="10" x:Name="Password" Header="Password" Width="200" VerticalAlignment="Center"/>
             <Button Margin="20" Click="Button_Click" HorizontalAlignment="Center">Login</Button>
+            <TextBlock x:Name="WrongCredentialsWarning" FontStyle="Italic" Text="Wrong credentials, please try again!" Foreground="Red" Visibility="Collapsed"></TextBlock>
         </StackPanel>
+        <muxc:ProgressRing x:Name="ProgressSpinner" IsActive="false" Width="80" Height="80"  />
     </Grid>
 </Page>

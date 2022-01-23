@@ -17,5 +17,8 @@ namespace Discordian.BotLauncher.Models
 
         [JsonPropertyName("messageDelay")]
         public int MessageDelay { get; set; }
+
+        [JsonPropertyName("credentials")]
+        public Credentials Credentials { get; set; }
     }
 }

@@ -5,9 +5,10 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     Style="{StaticResource PageStyle}"
     xmlns:model="using:Discordian.Core.Models"
-    xmlns:views="using:Discordian.Views" xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    xmlns:views="using:Discordian.Views" 
     mc:Ignorable="d">
     <Page.Transitions>
         <TransitionCollection>
@@ -120,19 +121,6 @@
                     FontSize="24"
                     Glyph="&#xE109;" />
                 </Button>
-                <Button
-                    Click="StartStopBot_Click"
-                    Grid.Column="2"
-                    Foreground="Red"
-                    ToolTipService.ToolTip="Launch"
-                    Background="Transparent">
-                    <FontIcon
-                    x:Name="StartStopIcon"
-                    VerticalAlignment="Center"
-                    HorizontalAlignment="Right"
-                    FontSize="24"
-                    Glyph="&#xE7E8;" />
-                </Button>
             </Grid>
         </DataTemplate>
         <DataTemplate x:Key="MinimalListHeaderTemplate">
@@ -175,32 +163,55 @@
             SelectedItem="{x:Bind ViewModel.Selected, Mode=TwoWay}" />
 
         <ContentDialog
-                    x:Name="AddBotContentDialog"
-                    Title="Add bot"
+            x:Name="AddBotContentDialog"
+            Title="Add bot"
+            Width="Auto"
             HorizontalAlignment="Center"
             VerticalAlignment="Center">
             <!-- Content body -->
-            <StackPanel>
-                <TextBox Margin="0,0,0,10" x:Name="BotNameTextBox" Text="{x:Bind BotName, Mode=TwoWay}" Header="Bot name" PlaceholderText="Your bot name..."></TextBox>
-                <TextBox Margin="0,0,0,10" x:Name="ServerNameTextBox" Text="{x:Bind ServerName, Mode=TwoWay}" Header="Server name" PlaceholderText="Server you want to target..."></TextBox>
-                <TextBox Margin="0,0,0,10" x:Name="ChannelNameTextBox" Text="{x:Bind ChannelName, Mode=TwoWay}" Header="Channel name" PlaceholderText="Channel you want to target..."></TextBox>
-                <muxc:NumberBox Margin="0,0,0,10" x:Name="MessageDelayNumberBox" Header="Message delay:" Value="{x:Bind MessageDelay, Mode=TwoWay}" PlaceholderText="Delay in seconds" />
-
-                <StackPanel Margin="20,10,0,0">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition></RowDefinition>
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"></ColumnDefinition>
-                            <ColumnDefinition Width="Auto"></ColumnDefinition>
-                        </Grid.ColumnDefinitions>
-                        <Button Grid.Row="0" Grid.Column="0" Content="Cancel" x:Name="cancelBtn" Click="CancelButton_Click" Margin="5,0" Width="100"  HorizontalAlignment="Center"/>
-                        <Button Grid.Row="0" Grid.Column="1" Content="Add" x:Name="addBotBtn" Click="CreateBotButton_Click" Margin="5,0" Width="100"  HorizontalAlignment="Center"/>
-                    </Grid>
+            <Grid>
+                <StackPanel>
+                    <StackPanel x:Name="CredentialsStackPanel">
+                        <ComboBox x:Name="EmailTextBox" IsEditable="True" ItemsSource="{x:Bind Mode=TwoWay, Path=Emails}" Header="Email" PlaceholderText="Discord email..." Width="289" SelectionChanged="EmailTextBox_SelectionChanged">
+                            <ComboBoxItem IsEnabled="False">Choose an existing or enter new</ComboBoxItem>
+                        </ComboBox>
+                        <PasswordBox x:Name="PasswordTextBox" Margin="0,0,0,10" Header="Password" PlaceholderText="Discord password..."/>
+                    </StackPanel>
+                    <TextBox x:Name="BotIdTextBox" Visibility="Collapsed"/>
+                    <TextBox Margin="0,0,0,10" x:Name="BotNameTextBox" Header="Bot name" PlaceholderText="Your bot name..."/>
+                    <TextBox Margin="0,0,0,10" x:Name="ServerNameTextBox" Header="Server name" PlaceholderText="Server you want to target..."/>
+                    <TextBox Margin="0,0,0,10" x:Name="ChannelNameTextBox" Header="Channel name" PlaceholderText="Channel you want to target..."/>
+                    <muxc:NumberBox Margin="0,0,0,10" x:Name="MessageDelayNumberBox" Header="Message delay:" PlaceholderText="Delay in seconds" />
+                    <StackPanel>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="50"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Button Click="ChooseMessages_Click" HorizontalAlignment="Center" Content="Choose messages" Margin="0,0,10,0"/>
+                            <TextBox Grid.Column="1" x:Name="ChosenFileName" VerticalAlignment="Center" Width="150" IsReadOnly="True"/>
+                        </Grid>
+                    </StackPanel>
+                    <TextBox x:Name="BotCreationValidationMessage" HorizontalAlignment="Center" BorderBrush="Transparent" Margin="10" Visibility="Collapsed" Foreground="Red" IsReadOnly="true"></TextBox>
+                    <StackPanel Margin="20,10,0,0">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Button Grid.Row="0" Grid.Column="0" Content="Cancel" x:Name="cancelBtn" Click="CancelButton_Click" Margin="10" Width="100"  HorizontalAlignment="Center"/>
+                            <Button Grid.Row="0" Grid.Column="1" Content="Add" x:Name="addBotBtn" Click="CreateBotButton_Click" Margin="10" Width="100"  HorizontalAlignment="Center"/>
+                        </Grid>
+                    </StackPanel>
                 </StackPanel>
-
-            </StackPanel>
+                <muxc:ProgressRing x:Name="ProgressSpinner" IsActive="False" Width="120" Height="120"  />
+            </Grid>
         </ContentDialog>
     </Grid>
 </Page>

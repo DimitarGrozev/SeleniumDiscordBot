@@ -14,6 +14,7 @@ using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
@@ -33,22 +34,31 @@ namespace Discordian.Views
 
         private async void LoginPage_Loaded(object sender, RoutedEventArgs e)
         {
+            await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync("Id");
+
+            ProgressSpinner.IsActive = true;
+            LoginForm.Opacity = 0.5;
+
             if (await DiscordianDbContext.IsAuthenticatedAsync())
             {
                 Window.Current.Content = new Lazy<UIElement>(CreateShell).Value ?? new Frame();
                 Window.Current.Activate();
-                Frame.Navigate(typeof(BotsPage));
+                Frame.Navigate(typeof(BotsPage), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromLeft });
 
                 return;
             }
 
-            await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync("Id");
+            LoginForm.Opacity = 1;
+            ProgressSpinner.IsActive = false;
         }
 
         private async void Button_Click(object sender, RoutedEventArgs e)
         {
+            WrongCredentialsWarning.Visibility = Visibility.Collapsed;
+            ProgressSpinner.IsActive = true;
+            LoginForm.Opacity = 0.5;
 
-            ValueSet valueSet = new ValueSet();
+            var valueSet = new ValueSet();
             valueSet.Add("request", "login");
             valueSet.Add("email", this.Email.Text);
             valueSet.Add("password", this.Password.Password);
@@ -62,12 +72,17 @@ namespace Discordian.Views
                 {
                     Window.Current.Content = new Lazy<UIElement>(CreateShell).Value ?? new Frame();
                     Window.Current.Activate();
-                    Frame.Navigate(typeof(BotsPage));
+                    Frame.Navigate(typeof(BotsPage), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromLeft });
 
                     var credentials = await DiscordianDbContext.AuthenticateAsync(this.Email.Text, this.Password.Password, token);
+
+                    return;
                 }
             }
 
+            LoginForm.Opacity = 1;
+            ProgressSpinner.IsActive = false;
+            WrongCredentialsWarning.Visibility = Visibility.Visible;
         }
 
         private UIElement CreateShell()
