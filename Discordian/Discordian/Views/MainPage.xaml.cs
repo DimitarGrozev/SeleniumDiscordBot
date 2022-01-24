@@ -1,7 +1,10 @@
 ﻿using System;
-
+using System.Collections.Generic;
+using System.Linq;
+using Discordian.Core.Models.Charts;
+using Discordian.Services;
 using Discordian.ViewModels;
-
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
 namespace Discordian.Views
@@ -13,6 +16,29 @@ namespace Discordian.Views
         public MainPage()
         {
             InitializeComponent();
+            this.Loaded += MainPage_Loaded;
         }
+
+        private async void MainPage_Loaded(object sender, RoutedEventArgs e)
+        {
+            ProgressSpinnerForMessagesPerBot.IsActive = true;
+
+            var discordApiClient = new DiscordApiClient();
+            var bots = await DiscordianDbContext.GetBotListAsync();
+            var messageCountChartData = new List<Data>();
+
+            foreach (var bot in bots)
+            {
+                var token = bot.Credentials.Token;
+                var messageCount = await discordApiClient.GetBotMessageCountInChannelAsync(bot.Server.Name, bot.Server.Channel, token);
+
+                messageCountChartData.Add(new Data { Category = bot.Name, Value = messageCount, LabelProperty = messageCount.ToString() });
+            }
+
+            this.barSeries.DataContext = messageCountChartData;
+
+            ProgressSpinnerForMessagesPerBot.IsActive = false;
+        }
+
     }
 }

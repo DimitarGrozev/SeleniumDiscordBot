@@ -74,7 +74,7 @@ namespace Discordian.Views
                     if (App.Connection != null)
                     {
                         var response = await App.Connection.SendMessageAsync(valueSet);
-                        var token = response.Message["token"].ToString();
+                        var token = response.Message["token"].ToString().Replace("\"","");
 
                         this.ProgressSpinner.IsActive = false;
                         this.AddBotContentDialog.Opacity = 1;

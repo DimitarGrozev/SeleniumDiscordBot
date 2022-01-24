@@ -4,15 +4,51 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:telerik="using:Telerik.UI.Xaml.Controls.Chart"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    
     Style="{StaticResource PageStyle}"
     mc:Ignorable="d">
     <Grid x:Name="ContentArea" Margin="{StaticResource MediumLeftRightMargin}">
         <Grid
             Background="{ThemeResource SystemControlPageBackgroundChromeLowBrush}">
-            <!--
-                The SystemControlPageBackgroundChromeLowBrush background represents where you should place your content. 
-                Place your content here.
-            -->
+            <Grid.RowDefinitions>
+                <RowDefinition></RowDefinition>
+                <RowDefinition></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Text="Messages per bot" FontSize="20" HorizontalAlignment="Center"></TextBlock>
+            <telerik:RadCartesianChart  x:Name="barSeries" Grid.Row="0" Grid.Column="0">
+                <telerik:RadCartesianChart.VerticalAxis>
+                    <telerik:LinearAxis/>
+                </telerik:RadCartesianChart.VerticalAxis>
+                <telerik:RadCartesianChart.HorizontalAxis>
+                    <telerik:CategoricalAxis/>
+                </telerik:RadCartesianChart.HorizontalAxis>
+
+                <telerik:BarSeries ShowLabels="True">
+                    <!--<telerik:BarSeries.LabelDefinitions>
+                        <telerik:ChartSeriesLabelDefinition HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <telerik:ChartSeriesLabelDefinition.Template>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding DataItem.LabelProperty}" Foreground="Black"/>
+                                </DataTemplate>
+                            </telerik:ChartSeriesLabelDefinition.Template>
+                        </telerik:ChartSeriesLabelDefinition>
+                    </telerik:BarSeries.LabelDefinitions>-->
+                    <telerik:BarSeries.CategoryBinding>
+                        <telerik:PropertyNameDataPointBinding PropertyName="Category"/>
+                    </telerik:BarSeries.CategoryBinding>
+                    <telerik:BarSeries.ValueBinding>
+                        <telerik:PropertyNameDataPointBinding PropertyName="Value"/>
+                    </telerik:BarSeries.ValueBinding>
+                </telerik:BarSeries>
+            </telerik:RadCartesianChart>
+            <muxc:ProgressRing x:Name="ProgressSpinnerForMessagesPerBot" IsActive="False" Width="120" Height="120"  />
         </Grid>
     </Grid>
 </Page>
