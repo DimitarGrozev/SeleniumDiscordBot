@@ -19,6 +19,23 @@ namespace Discordian.Services
 
         private readonly Uri _baseUri = new Uri("https://discord.com/api/v8/", UriKind.Absolute);
 
+        public async Task<int> GetBotMentionsCountInChannelAsync(string serverName, string channelName, string token)
+        {
+            var serverId = await this.GetServerIdAsync(serverName, token);
+            var channelId = await this.GetChannelIdByNameAsync(serverId, channelName, token);
+            var userId = await this.GetUserIdAsync(token);
+
+            var url = new UrlBuilder()
+               .SetPath($"guilds/{serverId}/messages/search?channel_id={channelId}&mentions={userId}")
+               .Build();
+
+            var response = await GetResponseAsync(url, token);
+            var content = await response.Content.ReadAsStringAsync();
+            var result = await Json.ToObjectAsync<ServerSearchResult>(content);
+
+            return result.Total_Results;
+        }
+
         public async Task<int> GetBotMessageCountInChannelAsync(string serverName, string channelName, string token)
         {
             var serverId = await this.GetServerIdAsync(serverName, token);
@@ -26,8 +43,8 @@ namespace Discordian.Services
             var userId = await this.GetUserIdAsync(token);
 
             var url = new UrlBuilder()
-            .SetPath($"guilds/{serverId}/messages/search?channel_id={channelId}&author_id={userId}")
-            .Build();
+                .SetPath($"guilds/{serverId}/messages/search?channel_id={channelId}&author_id={userId}")
+                .Build();
 
             var response = await GetResponseAsync(url, token);
             var content = await response.Content.ReadAsStringAsync();
