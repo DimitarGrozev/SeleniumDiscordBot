@@ -12,6 +12,8 @@
                 
                 <ResourceDictionary Source="/Styles/_Colors.xaml" />
                 
+                <ResourceDictionary Source="/Styles/Palettes.xaml" />
+                
                 <ResourceDictionary Source="/Styles/_FontSizes.xaml" />
                 
                 <ResourceDictionary Source="/Styles/_Thickness.xaml" />

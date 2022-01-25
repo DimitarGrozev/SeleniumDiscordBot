@@ -20,12 +20,6 @@
    </ItemGroup>
 
    <ItemGroup>
-     <None Update="Data\messages.json">
-       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-     </None>
-     <None Update="Data\messages.txt">
-       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-     </None>
      <None Update="Data\targets.json">
        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
      </None>
