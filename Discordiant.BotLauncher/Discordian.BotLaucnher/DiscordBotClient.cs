@@ -34,21 +34,30 @@ namespace Discordian.BotLauncher
 			this.botData = botData;
 		}
 
-		public void Launch()
+		public void Launch(Object obj)
 		{
+			CancellationToken ct = (CancellationToken)obj;
+
 			var chromeDriverService = ChromeDriverService.CreateDefaultService();
 			chromeDriverService.HideCommandPromptWindow = true;
 			var driver = new ChromeDriver(chromeDriverService);
+
 			driver.Navigate().GoToUrl(targetUrl);
 
 			this.Login(driver, botData.Credentials.Email, botData.Credentials.Password);
 
+			Thread.SpinWait(5000);
+
+			if (ct.IsCancellationRequested)
+			{
+				return;
+			}
+
 			this.NavigateToChannel(driver);
 
-			messages.Sentences = messages.Sentences.OrderBy(m => Guid.NewGuid()).ToList();
-
-			foreach (var message in messages.Sentences)
-			{
+			while(!ct.IsCancellationRequested)
+            {
+				var message = messages.Sentences.OrderBy(m => Guid.NewGuid()).FirstOrDefault();
 				var sanitizedMessage = Regex.Replace(message, @"\p{Cs}", " :D ");
 				(new Actions(driver)).SendKeys(sanitizedMessage + " " + OpenQA.Selenium.Keys.Enter).Perform();
 
@@ -57,6 +66,8 @@ namespace Discordian.BotLauncher
 				//Delay between messages
 				Thread.Sleep(botData.MessageDelay);
 			}
+
+			driver.Quit();
 		}
 
 		public string GetToken()

@@ -8,6 +8,8 @@ using Discordian.Core.Helpers;
 using System.Collections.Generic;
 using Windows.ApplicationModel;
 using System.Linq;
+using Discordian.Core.Models;
+using Windows.UI.Xaml.Media;
 
 namespace Discordian.Views
 {
@@ -16,6 +18,7 @@ namespace Discordian.Views
         public List<string> Emails { get; set; }
 
         public BotsViewModel ViewModel { get; } = new BotsViewModel();
+        public static Dictionary<Guid, bool> ActiveBots = new Dictionary<Guid, bool>();
 
         public BotsPage()
         {
@@ -27,6 +30,11 @@ namespace Discordian.Views
         {
             await ViewModel.LoadDataAsync(ListDetailsViewControl.ViewState);
             await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync("Id");
+
+            foreach (Bot bot in ViewModel.SampleItems)
+            {
+                ActiveBots.Add(bot.Id, false);
+            }
         }
 
         private async void ShowBotCreationDialog(object sender, RoutedEventArgs e)
@@ -141,26 +149,66 @@ namespace Discordian.Views
 
         private async void SendRequest_Click(object sender, RoutedEventArgs e)
         {
-            var id = Guid.Parse((sender as Button).Tag.ToString());
+            var button = sender as Button;
+            var id = Guid.Parse((button).Tag.ToString());
 
-            try
+            if (ActiveBots.GetValueOrDefault(id) == false)
             {
-                var messages = await DiscordianDbContext.GetMessagesForBotAsync(id);
-                var bot = await DiscordianDbContext.FindBotByIdAsync(id);
-
-                var valueSet = new ValueSet();
-                valueSet.Add("request", "start");
-                valueSet.Add("messages", await Json.StringifyAsync(messages));
-                valueSet.Add("bot", await Json.StringifyAsync(bot));
-
-                if (App.Connection != null)
+                try
                 {
-                    var response = await App.Connection.SendMessageAsync(valueSet);
+                    var messages = await DiscordianDbContext.GetMessagesForBotAsync(id);
+                    var bot = await DiscordianDbContext.FindBotByIdAsync(id);
+
+                    var valueSet = new ValueSet();
+                    valueSet.Add("request", "start");
+                    valueSet.Add("messages", await Json.StringifyAsync(messages));
+                    valueSet.Add("bot", await Json.StringifyAsync(bot));
+
+                    if (App.Connection != null)
+                    {
+                        var response = await App.Connection.SendMessageAsync(valueSet);
+                    }
+
+                    ActiveBots[id] = true;
+
+                    var fontIcon = new FontIcon();
+                    fontIcon.FontSize = 24;
+                    fontIcon.VerticalAlignment = VerticalAlignment.Center;
+                    fontIcon.Glyph = "\xE769";
+
+                    button.Content = fontIcon;
+                }
+                catch (ArgumentException ex)
+                {
+                    //TODO: Implement notification if bot fails to send data
                 }
             }
-            catch (ArgumentException ex)
+            else
             {
-                //TODO: Implement notification if bot fails to send data
+                try
+                {
+                    var valueSet = new ValueSet();
+                    valueSet.Add("request", "stop");
+                    valueSet.Add("id", id.ToString());
+
+                    if (App.Connection != null)
+                    {
+                        var response = await App.Connection.SendMessageAsync(valueSet);
+                    }
+
+                    ActiveBots[id] = false;
+
+                    var fontIcon = new FontIcon();
+                    fontIcon.FontSize = 24;
+                    fontIcon.VerticalAlignment = VerticalAlignment.Center;
+                    fontIcon.Glyph = "\xE768";
+
+                    button.Content = fontIcon;
+                }
+                catch (ArgumentException ex)
+                {
+                    //TODO: Implement notification if bot fails to send data
+                }
             }
         }
 
