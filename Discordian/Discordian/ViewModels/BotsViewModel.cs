@@ -37,8 +37,6 @@ namespace Discordian.ViewModels
             {
                 SampleItems.Add(item);
             }
-
-            
         }
     }
 }

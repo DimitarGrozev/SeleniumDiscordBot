@@ -7,12 +7,15 @@ using Windows.ApplicationModel.AppService;
 using System.Collections.Generic;
 using Discordian.BotLauncher.Models;
 using Discordian.BotLauncher.Utilities;
+using System.Text.RegularExpressions;
 
 namespace Discordian.BotLauncher
 {
 	class Program
 	{
-		static List<Thread> RunningThreads = new List<Thread>();
+		static Dictionary<Guid, Thread> RunningThreads = new Dictionary<Guid, Thread>();
+		static Dictionary<Guid, CancellationTokenSource> CancellationTokens = new Dictionary<Guid, CancellationTokenSource>();
+
 		static AppServiceConnection connection = null;
 
 		/// <summary>
@@ -101,7 +104,7 @@ namespace Discordian.BotLauncher
 
 				await args.Request.SendResponseAsync(message);
 			}
-			else
+			else if(key == "start")
 			{
 				var bot = await Json.ToObjectAsync<Bot>(args.Request.Message["bot"].ToString());
 				var messages = await Json.ToObjectAsync<Messages>(args.Request.Message["messages"].ToString());
@@ -109,16 +112,35 @@ namespace Discordian.BotLauncher
 				Console.WriteLine(string.Format("Received request to start bot {0}", bot.Name));
 
 				var discordBot = new DiscordBotClient(messages, bot);
-				var thread = new Thread(new ThreadStart(discordBot.Launch));
-				thread.Start();
+				var cts = new CancellationTokenSource();
+				var thread = new Thread(new ParameterizedThreadStart(discordBot.Launch));
 
-				RunningThreads.Add(thread);
+				thread.Start(cts.Token);
+
+				RunningThreads.Add(bot.Id, thread);
+				CancellationTokens.Add(bot.Id, cts);
 				Console.WriteLine("Launched bot");
 
 				var response = new ValueSet();
 				response.Add("received", true);
 
 				var botStartResponse = connection.SendMessageAsync(response);
+			}
+			else if(key == "stop")
+            {
+				var stringId = args.Request.Message.FirstOrDefault(m => m.Key == "id").Value.ToString();
+
+				var sanitizedStringId = stringId.Replace("\"", "");
+
+				var parsedId = Guid.Parse(sanitizedStringId);
+
+				CancellationTokens[parsedId].Cancel();
+				Console.WriteLine("Stopped bot");
+
+				var response = new ValueSet();
+				response.Add("received", true);
+
+				var botStopResponse = connection.SendMessageAsync(response);
 			}
 		}
 	}
