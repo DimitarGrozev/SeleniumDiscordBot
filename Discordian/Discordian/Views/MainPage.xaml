@@ -22,7 +22,7 @@
             </Grid.ColumnDefinitions>
 
             <TextBlock Text="Messages per bot" FontSize="20" HorizontalAlignment="Center"></TextBlock>
-            <telerik:RadCartesianChart  x:Name="barSeries" Grid.Row="0" Grid.Column="0">
+            <telerik:RadCartesianChart  x:Name="barSeries" Grid.Row="0" Grid.Column="0" PaletteName="DefaultLight">
                 <telerik:RadCartesianChart.VerticalAxis>
                     <telerik:LinearAxis/>
                 </telerik:RadCartesianChart.VerticalAxis>
@@ -30,8 +30,8 @@
                     <telerik:CategoricalAxis/>
                 </telerik:RadCartesianChart.HorizontalAxis>
 
-                <telerik:BarSeries ShowLabels="True">
-                    <!--<telerik:BarSeries.LabelDefinitions>
+                <telerik:BarSeries ShowLabels="True" ItemsSource="{Binding}" PaletteMode="DataPoint">
+                    <telerik:BarSeries.LabelDefinitions>
                         <telerik:ChartSeriesLabelDefinition HorizontalAlignment="Center" VerticalAlignment="Center">
                             <telerik:ChartSeriesLabelDefinition.Template>
                                 <DataTemplate>
@@ -39,7 +39,7 @@
                                 </DataTemplate>
                             </telerik:ChartSeriesLabelDefinition.Template>
                         </telerik:ChartSeriesLabelDefinition>
-                    </telerik:BarSeries.LabelDefinitions>-->
+                    </telerik:BarSeries.LabelDefinitions>
                     <telerik:BarSeries.CategoryBinding>
                         <telerik:PropertyNameDataPointBinding PropertyName="Category"/>
                     </telerik:BarSeries.CategoryBinding>
