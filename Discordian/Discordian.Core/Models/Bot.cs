@@ -20,5 +20,8 @@ namespace Discordian.Core.Models
 
         [JsonPropertyName("credentials")]
         public Account Credentials { get; set; }
+
+        [JsonPropertyName("discordData")]
+        public DiscordData DiscordData{ get; set; }
     }
 }

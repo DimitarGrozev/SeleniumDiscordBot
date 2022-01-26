@@ -56,6 +56,23 @@ namespace Discordian.Services
             throw new ArgumentNullException("Messages could not be found!");
         }
 
+        public static async Task AppendDiscordDataToBotAsync(DiscordData discordData, Guid id)
+        {
+            var bots = await GetBotListAsync();
+            var bot = bots.FirstOrDefault(b => b.Id == id);
+
+            if (bot != null)
+            {
+                bot.DiscordData = discordData;
+
+                var file = await ApplicationData.Current.LocalFolder.GetFileAsync(targetsFilePath);
+                var botsData = new BotsData { Bots = bots };
+                var serializedString = await Json.StringifyAsync(botsData);
+
+                await FileIO.WriteTextAsync(file, serializedString);
+            }
+        }
+
         public static async Task<Messages> GetMessagesForBotAsync(Guid id)
         {
             var file = await ApplicationData.Current.LocalFolder.GetFileAsync(id + ".json");

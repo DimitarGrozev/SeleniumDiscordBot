@@ -1,4 +1,5 @@
 ﻿using Discordian.Core.Helpers;
+using Discordian.Core.Models;
 using Discordian.Core.Models.Discord;
 using Discordian.Utilities;
 using System;
@@ -19,14 +20,21 @@ namespace Discordian.Services
 
         private readonly Uri _baseUri = new Uri("https://discord.com/api/v8/", UriKind.Absolute);
 
-        public async Task<int> GetBotMentionsCountInChannelAsync(string serverName, string channelName, string token)
+        public async Task<DiscordData> GetDiscordDataForBot(Bot bot)
         {
-            var serverId = await this.GetServerIdAsync(serverName, token);
-            var channelId = await this.GetChannelIdByNameAsync(serverId, channelName, token);
-            var userId = await this.GetUserIdAsync(token);
+            var serverId = await this.GetServerIdAsync(bot.Server.Name, bot.Credentials.Token);
+            var channelId = await this.GetChannelIdByNameAsync(serverId, bot.Server.Channel, bot.Credentials.Token);
+            var userId = await this.GetUserIdAsync(bot.Credentials.Token);
 
+            var discordData = new DiscordData { ServerId = serverId, ChannelId = channelId, UserId = userId };
+
+            return discordData;
+        }
+
+        public async Task<int> GetBotMentionsCountInChannelAsync(DiscordData data, string token)
+        {
             var url = new UrlBuilder()
-               .SetPath($"guilds/{serverId}/messages/search?channel_id={channelId}&mentions={userId}")
+               .SetPath($"guilds/{data.ServerId}/messages/search?channel_id={data.ChannelId}&mentions={data.UserId}")
                .Build();
 
             var response = await GetResponseAsync(url, token);
@@ -36,14 +44,10 @@ namespace Discordian.Services
             return result.Total_Results;
         }
 
-        public async Task<int> GetBotMessageCountInChannelAsync(string serverName, string channelName, string token)
+        public async Task<int> GetBotMessageCountInChannelAsync(DiscordData data, string token)
         {
-            var serverId = await this.GetServerIdAsync(serverName, token);
-            var channelId = await this.GetChannelIdByNameAsync(serverId, channelName, token);
-            var userId = await this.GetUserIdAsync(token);
-
             var url = new UrlBuilder()
-                .SetPath($"guilds/{serverId}/messages/search?channel_id={channelId}&author_id={userId}")
+                .SetPath($"guilds/{data.ServerId}/messages/search?channel_id={data.ChannelId}&author_id={data.UserId}")
                 .Build();
 
             var response = await GetResponseAsync(url, token);
@@ -95,7 +99,7 @@ namespace Discordian.Services
         }
 
 
-        public async Task<List<Server>> GetServersForUserAsync(string token)
+        public async Task<List<Core.Models.Discord.Server>> GetServersForUserAsync(string token)
         {
             var url = new UrlBuilder()
                 .SetPath("users/@me/guilds")
@@ -104,9 +108,9 @@ namespace Discordian.Services
 
             var response = await GetResponseAsync(url, token);
             var content = await response.Content.ReadAsStringAsync();
-            var guilds = await Json.ToObjectAsync<List<Server>>(content);
+            var servers = await Json.ToObjectAsync<List<Core.Models.Discord.Server>>(content);
 
-            return guilds;
+            return servers;
         }
 
         public async Task<string> GetServerIdAsync(string serverName, string token)
@@ -130,8 +134,9 @@ namespace Discordian.Services
                 request.Headers.Authorization = new AuthenticationHeaderValue(token);
                 await Task.Delay(100);
 
-                return await httpClient.SendAsync(request);
+                var response =  await httpClient.SendAsync(request);
 
+                return response;
             }
         }
     }
