@@ -5,6 +5,7 @@ using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Edge;
 using OpenQA.Selenium.Interactions;
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -13,6 +14,8 @@ namespace Discordian.BotLauncher
 {
 	public class DiscordBotClient
 	{
+		private static readonly object loginLock = new object();
+
 		private const string channelsList = "content-2a4AW9";
 		private const string discordLoginUrl = "https://discord.com/login";
 		private const string targetUrl = "https://discord.com/channels/@me";
@@ -43,15 +46,9 @@ namespace Discordian.BotLauncher
 			var driver = new ChromeDriver(chromeDriverService);
 
 			driver.Navigate().GoToUrl(targetUrl);
+			Thread.Sleep(2000);
 
 			this.Login(driver, botData.Credentials.Email, botData.Credentials.Password);
-
-			Thread.SpinWait(5000);
-
-			if (ct.IsCancellationRequested)
-			{
-				return;
-			}
 
 			this.NavigateToChannel(driver);
 
@@ -64,10 +61,23 @@ namespace Discordian.BotLauncher
 				Logger.LogMessage(botData.Server.Name, sanitizedMessage);
 
 				//Delay between messages
-				Thread.Sleep(botData.MessageDelay);
+				var stopwatch = new Stopwatch();
+				stopwatch.Start();
+
+				while (true)
+				{
+					if (stopwatch.Elapsed.Milliseconds >= botData.MessageDelay || ct.IsCancellationRequested)
+					{
+						stopwatch.Stop();
+						stopwatch.Reset();
+						break;
+					}
+				}
 			}
 
 			driver.Quit();
+			driver.Dispose();
+			driver = null;
 		}
 
 		public string GetToken()
@@ -80,6 +90,7 @@ namespace Discordian.BotLauncher
 			options.EnableMobileEmulation("iPhone 8");
 			var driver = new ChromeDriver(chromeDriverService, options);
 			driver.Navigate().GoToUrl(targetUrl);
+			Thread.Sleep(2000);
 
 			this.Login(driver, this.email, this.password);
 
@@ -88,38 +99,44 @@ namespace Discordian.BotLauncher
 				token = (driver as IJavaScriptExecutor).ExecuteScript(Scripts.getDiscordTokenFromBrowser).ToString();
 			}
 
-			driver.Close();
+			driver.Quit();
+			driver.Dispose();
+			driver = null;
 
 			return token;
 		}
 
 		private void Login(IWebDriver driver, string email, string password)
 		{
-			//Login
-			var emailElement = driver.FindElement(SelectorByAttributeValue("class", "inputDefault-3FGxgL input-2g-os5 inputField-2RZxdl"));
-			emailElement.SendKeys(email);
-
-			var passwordElement = driver.FindElement(SelectorByAttributeValue("class", "inputDefault-3FGxgL input-2g-os5"));
-			passwordElement.SendKeys(password);
-
-			var loginButton = driver.FindElement(SelectorByAttributeValue("class", "marginBottom8-emkd0_ button-1cRKG6 button-f2h6uQ lookFilled-yCfaCM colorBrand-I6CyqQ sizeLarge-3mScP9 fullWidth-fJIsjq grow-2sR_-F"));
-			loginButton.Click();
-			Thread.Sleep(5000);
-
-			while (true)
+			lock (loginLock)
 			{
-				try
-				{
-					var verificationHeader = driver.FindElement(By.XPath("//iframe[contains(@src, 'captcha')]"));
-					continue;
-				}
-				catch (Exception ex)
-				{
-					break;
-				}
-			}
+				//Login
+				var emailElement = driver.FindElement(SelectorByAttributeValue("class", "inputDefault-3FGxgL input-2g-os5 inputField-2RZxdl"));
+				emailElement.SendKeys(email);
 
-			Thread.Sleep(2000);
+				var passwordElement = driver.FindElement(SelectorByAttributeValue("class", "inputDefault-3FGxgL input-2g-os5"));
+				passwordElement.SendKeys(password);
+
+				var loginButton = driver.FindElement(SelectorByAttributeValue("class", "marginBottom8-emkd0_ button-1cRKG6 button-f2h6uQ lookFilled-yCfaCM colorBrand-I6CyqQ sizeLarge-3mScP9 fullWidth-fJIsjq grow-2sR_-F"));
+				loginButton.Click();
+
+				Thread.Sleep(5000);
+
+				while (true)
+				{
+					try
+					{
+						var verificationHeader = driver.FindElement(By.XPath("//iframe[contains(@src, 'captcha')]"));
+						continue;
+					}
+					catch (Exception ex)
+					{
+						break;
+					}
+				}
+
+				Thread.Sleep(2000);
+			}
 		}
 
 		private void NavigateToChannel(IWebDriver driver)
