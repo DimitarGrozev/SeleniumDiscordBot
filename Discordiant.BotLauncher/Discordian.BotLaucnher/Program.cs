@@ -135,6 +135,10 @@ namespace Discordian.BotLauncher
 				var parsedId = Guid.Parse(sanitizedStringId);
 
 				CancellationTokens[parsedId].Cancel();
+
+				CancellationTokens.Remove(parsedId);
+				RunningThreads.Remove(parsedId);
+
 				Console.WriteLine("Stopped bot");
 
 				var response = new ValueSet();

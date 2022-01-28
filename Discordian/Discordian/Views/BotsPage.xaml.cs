@@ -29,11 +29,11 @@ namespace Discordian.Views
         private async void BotsPage_Loaded(object sender, RoutedEventArgs e)
         {
             await ViewModel.LoadDataAsync(ListDetailsViewControl.ViewState);
-            await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync("Id");
 
-            foreach (Bot bot in ViewModel.SampleItems)
+            foreach (var bot in ViewModel.SampleItems)
             {
-                ActiveBots.Add(bot.Id, false);
+                if (!ActiveBots.ContainsKey(bot.Id))
+                    ActiveBots.Add(bot.Id, false);
             }
         }
 
@@ -82,7 +82,7 @@ namespace Discordian.Views
                     if (App.Connection != null)
                     {
                         var response = await App.Connection.SendMessageAsync(valueSet);
-                        var token = response.Message["token"].ToString().Replace("\"","");
+                        var token = response.Message["token"].ToString().Replace("\"", "");
 
                         this.ProgressSpinner.IsActive = false;
                         this.AddBotContentDialog.Opacity = 1;
