@@ -1,15 +1,12 @@
 ﻿using System;
+using System.Linq;
+using System.Collections.Generic;
 using Discordian.Services;
 using Discordian.ViewModels;
+using Discordian.Core.Helpers;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.Foundation.Collections;
-using Discordian.Core.Helpers;
-using System.Collections.Generic;
-using Windows.ApplicationModel;
-using System.Linq;
-using Discordian.Core.Models;
-using Windows.UI.Xaml.Media;
 
 namespace Discordian.Views
 {
@@ -40,7 +37,7 @@ namespace Discordian.Views
         private async void ShowBotCreationDialog(object sender, RoutedEventArgs e)
         {
             var emails = await DiscordianDbContext.GetSavedEmailsAsync();
-            var currentEmails = this.EmailTextBox.Items.Skip(1);
+            var currentEmails = this.EmailTextBox.Items.Skip(1).ToList();
 
             foreach (var item in currentEmails)
             {

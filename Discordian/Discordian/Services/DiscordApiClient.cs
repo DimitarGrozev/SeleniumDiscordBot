@@ -2,8 +2,10 @@
 using Discordian.Core.Models;
 using Discordian.Core.Models.Discord;
 using Discordian.Utilities;
+using Polly;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -19,6 +21,32 @@ namespace Discordian.Services
         private static readonly HttpClient httpClient = new HttpClient();
 
         private readonly Uri _baseUri = new Uri("https://discord.com/api/v8/", UriKind.Absolute);
+
+        private IAsyncPolicy<HttpResponseMessage> ResponsePolicy { get; } =
+          Policy
+              .Handle<IOException>()
+              .Or<HttpRequestException>()
+              .OrResult<HttpResponseMessage>(m => (int)m.StatusCode == 429)
+              .OrResult(m => m.StatusCode == HttpStatusCode.RequestTimeout)
+              .OrResult(m => m.StatusCode >= HttpStatusCode.InternalServerError)
+              .WaitAndRetryAsync(
+                  8,
+                  (i, result, context) =>
+                  {
+                      if ((int)result.Result?.StatusCode == 429)
+                      {
+                          if (i > 3)
+                          {
+                              var retryAfterDelay = result.Result.Headers.RetryAfter?.Delta;
+                              if (retryAfterDelay != null)
+                                  return retryAfterDelay.Value + TimeSpan.FromSeconds(1);
+                          }
+                      }
+
+                      return TimeSpan.FromSeconds(Math.Pow(2, i) + 1);
+                  },
+                  (_, _, _, _) => Task.CompletedTask
+       );
 
         public async Task<DiscordData> GetDiscordDataForBot(Bot bot)
         {
@@ -127,14 +155,22 @@ namespace Discordian.Services
             throw new ArgumentException("User is not part of that server!");
         }
 
-        private async ValueTask<HttpResponseMessage> GetResponseAsync(string url, string token)
+        private async ValueTask<HttpResponseMessage> GetResponseAsync(string url, string token, CancellationToken cancellationToken = default)
+        {
+            return await this.ResponsePolicy.ExecuteAsync(async innerCancellationToken =>
+            {
+                return await this.GetInternalResponseAsync(url, token);
+
+            }, cancellationToken);
+        }
+
+        private async ValueTask<HttpResponseMessage> GetInternalResponseAsync(string url, string token, CancellationToken cancellationToken = default)
         {
             using (var request = new HttpRequestMessage(HttpMethod.Get, new Uri(_baseUri, url)))
             {
                 request.Headers.Authorization = new AuthenticationHeaderValue(token);
-                await Task.Delay(100);
 
-                var response =  await httpClient.SendAsync(request);
+                var response = await httpClient.SendAsync(request);
 
                 return response;
             }
