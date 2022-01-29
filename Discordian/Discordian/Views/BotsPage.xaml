@@ -69,8 +69,6 @@
                                     </Grid.ColumnDefinitions>
 
                                     <Button Grid.Column="1" Tag="{Binding Id}" HorizontalAlignment="Center" Click="DeleteConfirmation_Click" Content="Yes"  VerticalAlignment="Center"/>
-
-
                                     <Button Grid.Column="0" Content="Cancel" HorizontalAlignment="Center"  VerticalAlignment="Center"/>
                                 </Grid>
                             </StackPanel>
@@ -78,7 +76,7 @@
                     </FlyoutBase.AttachedFlyout>
                 </Button>
 
-                <Button
+                <Button Loaded="StartStopButton_Loaded"
                     Grid.Column="3"
                     Click="SendRequest_Click"
                     Tag="{Binding Id}"
@@ -215,7 +213,7 @@
                     
                     <TextBox Margin="0,0,0,10" x:Name="ChannelNameTextBox" Header="Channel name" PlaceholderText="Channel you want to target..."/>
                     
-                    <muxc:NumberBox Margin="0,0,0,10" x:Name="MessageDelayNumberBox" Header="Message delay:" PlaceholderText="Delay in seconds" />
+                    <muxc:NumberBox Margin="0,0,0,10" x:Name="MessageDelayNumberBox" Header="Message delay:" PlaceholderText="Delay in seconds" SpinButtonPlacementMode="Inline" Value="0" SmallChange="5" LargeChange="10"/>
                     
                     <StackPanel>
                         <Grid>

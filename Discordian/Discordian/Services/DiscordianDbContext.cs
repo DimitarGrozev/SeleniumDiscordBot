@@ -42,6 +42,14 @@ namespace Discordian.Services
             await file.DeleteAsync();
         }
 
+        public static async Task<int> GetBotCountAsync()
+        {
+            var bots = await GetBotListAsync();
+            var count = bots.Count;
+
+            return count;
+        }
+
         public static async Task<Messages> GetAllMessagesAsync()
         {
             var file = await ApplicationData.Current.LocalFolder.GetFileAsync(messagesFilePath);
