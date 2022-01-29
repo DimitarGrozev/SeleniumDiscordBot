@@ -66,7 +66,7 @@ namespace Discordian.BotLauncher
 
 				while (true)
 				{
-					if (stopwatch.ElapsedMilliseconds >= botData.MessageDelay || ct.IsCancellationRequested)
+					if (stopwatch.Elapsed.TotalSeconds >= botData.MessageDelay || ct.IsCancellationRequested)
 					{
 						stopwatch.Stop();
 						stopwatch.Reset();

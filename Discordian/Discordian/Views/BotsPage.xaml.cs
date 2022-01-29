@@ -7,6 +7,7 @@ using Discordian.Core.Helpers;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.Foundation.Collections;
+using Windows.UI.Popups;
 
 namespace Discordian.Views
 {
@@ -36,17 +37,26 @@ namespace Discordian.Views
 
         private async void ShowBotCreationDialog(object sender, RoutedEventArgs e)
         {
-            var emails = await DiscordianDbContext.GetSavedEmailsAsync();
-            var currentEmails = this.EmailTextBox.Items.Skip(1).ToList();
+            var botCount = await DiscordianDbContext.GetBotCountAsync();
 
-            foreach (var item in currentEmails)
+            if (botCount < 10)
             {
-                this.EmailTextBox.Items.Remove(item);
+                var emails = await DiscordianDbContext.GetSavedEmailsAsync();
+                var currentEmails = this.EmailTextBox.Items.Skip(1).ToList();
+
+                foreach (var item in currentEmails)
+                {
+                    this.EmailTextBox.Items.Remove(item);
+                }
+
+                emails.ForEach(a => this.EmailTextBox.Items.Add(a));
+
+                await AddBotContentDialog.ShowAsync();
             }
-
-            emails.ForEach(a => this.EmailTextBox.Items.Add(a));
-
-            await AddBotContentDialog.ShowAsync();
+            else
+            {
+                await new MessageDialog("You can have a maximum of 10 bots at a time!", "Bot count exceeded").ShowAsync();
+            }
         }
 
         private async void CreateBotButton_Click(object sender, RoutedEventArgs e)
@@ -55,47 +65,48 @@ namespace Discordian.Views
             var botName = this.BotNameTextBox.Text;
             var serverName = this.ServerNameTextBox.Text;
             var channelName = this.ChannelNameTextBox.Text;
-            var messageDelay = int.Parse(this.MessageDelayNumberBox.Text);
+            var messageDelay = this.MessageDelayNumberBox.Text;
             var email = this.EmailTextBox.Text;
             var password = this.PasswordTextBox.Password;
+            var token = string.Empty;
 
             if (this.InformationIsPresent(id, botName, serverName, channelName, messageDelay, email, password))
             {
+
                 if (await DiscordianDbContext.AccountIsSavedAsync(email, password))
                 {
-                    var token = await DiscordianDbContext.GetTokenForAccountAsync(email, password);
-                    await DiscordianDbContext.CreateBotAsync(id, botName, serverName, channelName, messageDelay, email, password, token);
+                    token = await DiscordianDbContext.GetTokenForExistingAccountAsync(email, password);
                 }
                 else
                 {
                     this.ProgressSpinner.IsActive = true;
                     this.AddBotContentDialog.Opacity = 0.5;
 
-                    var valueSet = new ValueSet();
-                    valueSet.Add("request", "login");
-                    valueSet.Add("email", email);
-                    valueSet.Add("password", password);
+                    token = await DiscordianBotConsoleClient.GetTokenForNewAccountAsync(email, password);
 
-                    if (App.Connection != null)
+                    this.ProgressSpinner.IsActive = false;
+                    this.AddBotContentDialog.Opacity = 1;
+
+                    if (string.IsNullOrEmpty(token))
                     {
-                        var response = await App.Connection.SendMessageAsync(valueSet);
-                        var token = response.Message["token"].ToString().Replace("\"", "");
-
-                        this.ProgressSpinner.IsActive = false;
-                        this.AddBotContentDialog.Opacity = 1;
-
-                        if (!string.IsNullOrEmpty(token))
-                        {
-                            await DiscordianDbContext.CreateBotAsync(id, botName, serverName, channelName, messageDelay, email, password, token);
-                            await DiscordianDbContext.SaveAccountAsync(email, password, token);
-                        }
-                        else
-                        {
-                            BotCreationValidationMessage.Visibility = Visibility.Visible;
-                            BotCreationValidationMessage.Text = "Wrong credentials! Try again!";
-                            return;
-                        }
+                        BotCreationValidationMessage.Visibility = Visibility.Visible;
+                        BotCreationValidationMessage.Text = "Wrong credentials! Try again!";
+                        return;
                     }
+                }
+
+                try
+                {
+                    var discordData = await DiscordApiClient.GetDiscordDataForBot(serverName, channelName, token);
+
+                    await DiscordianDbContext.AddDiscordDataToBotAsync(discordData, Guid.Parse(id));
+                    await DiscordianDbContext.CreateBotAsync(id, botName, serverName, channelName, int.Parse(messageDelay), email, password, token);
+                }
+                catch (ArgumentException ex)
+                {
+                    BotCreationValidationMessage.Visibility = Visibility.Visible;
+                    BotCreationValidationMessage.Text = ex.Message;
+                    return;
                 }
 
                 AddBotContentDialog.Hide();
@@ -104,7 +115,7 @@ namespace Discordian.Views
                 this.BotNameTextBox.Text = string.Empty;
                 this.ServerNameTextBox.Text = string.Empty;
                 this.ChannelNameTextBox.Text = string.Empty;
-                this.MessageDelayNumberBox.Text = string.Empty;
+                this.MessageDelayNumberBox.Text = "0";
                 this.ChosenFileName.Text = string.Empty;
                 this.EmailTextBox.Text = string.Empty;
                 this.PasswordTextBox.Password = string.Empty;
@@ -114,6 +125,8 @@ namespace Discordian.Views
 
                 BotCreationValidationMessage.Visibility = Visibility.Collapsed;
                 BotCreationValidationMessage.Text = string.Empty;
+
+                ActiveBots[Guid.Parse(id)] = false;
 
                 await ViewModel.LoadDataAsync(ListDetailsViewControl.ViewState);
             }
@@ -135,7 +148,7 @@ namespace Discordian.Views
             this.BotNameTextBox.Text = string.Empty;
             this.ServerNameTextBox.Text = string.Empty;
             this.ChannelNameTextBox.Text = string.Empty;
-            this.MessageDelayNumberBox.Text = string.Empty;
+            this.MessageDelayNumberBox.Text = "0";
             this.ChosenFileName.Text = string.Empty;
             this.EmailTextBox.Text = string.Empty;
             this.PasswordTextBox.Password = string.Empty;
@@ -250,9 +263,24 @@ namespace Discordian.Views
             }
         }
 
-        private bool InformationIsPresent(string id, string botName, string serverName, string channelName, int messageDelay, string email, string password)
+        private bool InformationIsPresent(string id, string botName, string serverName, string channelName, string messageDelay, string email, string password)
         {
-            return id != null && serverName != null && channelName != null && messageDelay != 0 && email != null && password != null;
+            return !string.IsNullOrEmpty(id) && !string.IsNullOrEmpty(serverName) && !string.IsNullOrEmpty(channelName) && !string.IsNullOrEmpty(messageDelay) && !string.IsNullOrEmpty(email) && !string.IsNullOrEmpty(password);
+        }
+
+        private void StartStopButton_Loaded(object sender, RoutedEventArgs e)
+        {
+            var id = Guid.Parse((sender as Button).Tag.ToString());
+
+            if (ActiveBots[id])
+            {
+                var fontIcon = new FontIcon();
+                fontIcon.FontSize = 24;
+                fontIcon.VerticalAlignment = VerticalAlignment.Center;
+                fontIcon.Glyph = "\xE769";
+
+                (sender as Button).Content = fontIcon;
+            }
         }
     }
 }

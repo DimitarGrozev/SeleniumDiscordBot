@@ -10,6 +10,7 @@ using Discordian.Core.Helpers;
 using Discordian.Core.Models;
 using Windows.Storage;
 using Windows.Storage.Pickers;
+using Windows.Foundation.Collections;
 
 namespace Discordian.Services
 {
@@ -42,6 +43,14 @@ namespace Discordian.Services
             await file.DeleteAsync();
         }
 
+        public static async Task<int> GetBotCountAsync()
+        {
+            var bots = await GetBotListAsync();
+            var count = bots.Count;
+
+            return count;
+        }
+
         public static async Task<Messages> GetAllMessagesAsync()
         {
             var file = await ApplicationData.Current.LocalFolder.GetFileAsync(messagesFilePath);
@@ -56,7 +65,7 @@ namespace Discordian.Services
             throw new ArgumentNullException("Messages could not be found!");
         }
 
-        public static async Task AppendDiscordDataToBotAsync(DiscordData discordData, Guid id)
+        public static async Task AddDiscordDataToBotAsync(DiscordData discordData, Guid id)
         {
             var bots = await GetBotListAsync();
             var bot = bots.FirstOrDefault(b => b.Id == id);
@@ -95,7 +104,7 @@ namespace Discordian.Services
             return account != null;
         }
 
-        public static async Task<string> GetTokenForAccountAsync(string email, string password)
+        public static async Task<string> GetTokenForExistingAccountAsync(string email, string password)
         {
             var credentials = await GetCredentialsAsync();
             var account = credentials.Accounts.FirstOrDefault(a => a.Email == email && a.Password == password);
