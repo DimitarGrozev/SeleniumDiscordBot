@@ -16,13 +16,13 @@ using System.Threading.Tasks;
 
 namespace Discordian.Services
 {
-    public class DiscordApiClient
+    public static class DiscordApiClient
     {
         private static readonly HttpClient httpClient = new HttpClient();
 
-        private readonly Uri _baseUri = new Uri("https://discord.com/api/v8/", UriKind.Absolute);
+        private static readonly Uri _baseUri = new Uri("https://discord.com/api/v8/", UriKind.Absolute);
 
-        private IAsyncPolicy<HttpResponseMessage> ResponsePolicy { get; } =
+        private static IAsyncPolicy<HttpResponseMessage> ResponsePolicy { get; } =
           Policy
               .Handle<IOException>()
               .Or<HttpRequestException>()
@@ -46,20 +46,36 @@ namespace Discordian.Services
                       return TimeSpan.FromSeconds(Math.Pow(2, i) + 1);
                   },
                   (_, _, _, _) => Task.CompletedTask
-       );
+        );
 
-        public async Task<DiscordData> GetDiscordDataForBot(Bot bot)
+        public static async Task<bool> ServerExistsAsync(string serverName, string token)
         {
-            var serverId = await this.GetServerIdAsync(bot.Server.Name, bot.Credentials.Token);
-            var channelId = await this.GetChannelIdByNameAsync(serverId, bot.Server.Channel, bot.Credentials.Token);
-            var userId = await this.GetUserIdAsync(bot.Credentials.Token);
+            var serverExists = true;
+
+            try
+            {
+                await GetServerIdAsync(serverName, token);
+            }
+            catch(ArgumentException ex)
+            {
+                serverExists = false;
+            }
+
+            return serverExists;
+        }
+
+        public static async Task<DiscordData> GetDiscordDataForBot(string serverName, string channelName, string token)
+        {
+            var serverId = await GetServerIdAsync(serverName, token);
+            var channelId = await GetChannelIdByNameAsync(serverId, serverName, channelName, token);
+            var userId = await GetUserIdAsync(token);
 
             var discordData = new DiscordData { ServerId = serverId, ChannelId = channelId, UserId = userId };
 
             return discordData;
         }
 
-        public async Task<int> GetBotMentionsCountInChannelAsync(DiscordData data, string token)
+        public static async Task<int> GetBotMentionsCountInChannelAsync(DiscordData data, string token)
         {
             var url = new UrlBuilder()
                .SetPath($"guilds/{data.ServerId}/messages/search?channel_id={data.ChannelId}&mentions={data.UserId}")
@@ -72,7 +88,7 @@ namespace Discordian.Services
             return result.Total_Results;
         }
 
-        public async Task<int> GetBotMessageCountInChannelAsync(DiscordData data, string token)
+        public static async Task<int> GetBotMessageCountInChannelAsync(DiscordData data, string token)
         {
             var url = new UrlBuilder()
                 .SetPath($"guilds/{data.ServerId}/messages/search?channel_id={data.ChannelId}&author_id={data.UserId}")
@@ -85,7 +101,7 @@ namespace Discordian.Services
             return result.Total_Results;
         }
 
-        public async Task<string> GetUserIdAsync(string token)
+        public static async Task<string> GetUserIdAsync(string token)
         {
             var url = new UrlBuilder()
               .SetPath("users/@me")
@@ -99,9 +115,9 @@ namespace Discordian.Services
             return userId;
         }
 
-        public async Task<string> GetChannelIdByNameAsync(string serverId, string channelName, string token)
+        public static async Task<string> GetChannelIdByNameAsync(string serverId, string serverName, string channelName, string token)
         {
-            var channels = await this.GetChannelsInServerAsync(serverId, token);
+            var channels = await GetChannelsInServerAsync(serverId, token);
             var channel = channels.FirstOrDefault(c => c.Name.Contains(channelName));
 
             if (channel != null)
@@ -109,10 +125,10 @@ namespace Discordian.Services
                 return channel.Id;
             }
 
-            throw new ArgumentException("No such channel in server!");
+            throw new ArgumentException($"Channel \"{channelName}\" does not exist in server \"{serverName}\"!");
         }
 
-        public async Task<List<Channel>> GetChannelsInServerAsync(string serverId, string token)
+        public static async Task<List<Channel>> GetChannelsInServerAsync(string serverId, string token)
         {
             var url = new UrlBuilder()
                .SetPath($"guilds/{serverId}/channels")
@@ -127,7 +143,7 @@ namespace Discordian.Services
         }
 
 
-        public async Task<List<Core.Models.Discord.Server>> GetServersForUserAsync(string token)
+        public static async Task<List<Core.Models.Discord.Server>> GetServersForUserAsync(string token)
         {
             var url = new UrlBuilder()
                 .SetPath("users/@me/guilds")
@@ -141,9 +157,9 @@ namespace Discordian.Services
             return servers;
         }
 
-        public async Task<string> GetServerIdAsync(string serverName, string token)
+        public static async Task<string> GetServerIdAsync(string serverName, string token)
         {
-            var servers = await this.GetServersForUserAsync(token);
+            var servers = await GetServersForUserAsync(token);
 
             var server = servers.FirstOrDefault(s => s.Name == serverName);
 
@@ -152,19 +168,19 @@ namespace Discordian.Services
                 return server.Id;
             }
 
-            throw new ArgumentException("User is not part of that server!");
+            throw new ArgumentException($"Server \"{serverName}\" does not exist!");
         }
 
-        private async ValueTask<HttpResponseMessage> GetResponseAsync(string url, string token, CancellationToken cancellationToken = default)
+        private static async ValueTask<HttpResponseMessage> GetResponseAsync(string url, string token, CancellationToken cancellationToken = default)
         {
-            return await this.ResponsePolicy.ExecuteAsync(async innerCancellationToken =>
+            return await ResponsePolicy.ExecuteAsync(async innerCancellationToken =>
             {
-                return await this.GetInternalResponseAsync(url, token);
+                return await GetInternalResponseAsync(url, token);
 
             }, cancellationToken);
         }
 
-        private async ValueTask<HttpResponseMessage> GetInternalResponseAsync(string url, string token, CancellationToken cancellationToken = default)
+        private static async ValueTask<HttpResponseMessage> GetInternalResponseAsync(string url, string token, CancellationToken cancellationToken = default)
         {
             using (var request = new HttpRequestMessage(HttpMethod.Get, new Uri(_baseUri, url)))
             {

@@ -163,6 +163,7 @@
     <Compile Include="Services\ActivationService.cs" />
     <Compile Include="Activation\DefaultActivationHandler.cs" />
     <Compile Include="Services\DiscordApiClient.cs" />
+    <Compile Include="Services\DiscordianBotConsoleClient.cs" />
     <Compile Include="Services\DiscordianDbContext.cs" />
     <Compile Include="Services\NavigationService.cs" />
     <Compile Include="Services\ThemeSelectorService.cs" />
