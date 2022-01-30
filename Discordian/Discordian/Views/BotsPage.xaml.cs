@@ -8,6 +8,9 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.Foundation.Collections;
 using Windows.UI.Popups;
+using System.Text.RegularExpressions;
+using Microsoft.UI.Xaml.Controls;
+using Windows.UI.ViewManagement;
 
 namespace Discordian.Views
 {
@@ -70,7 +73,7 @@ namespace Discordian.Views
             var password = this.PasswordTextBox.Password;
             var token = string.Empty;
 
-            if (this.InformationIsPresent(id, botName, serverName, channelName, messageDelay, email, password))
+            if (this.ValidateBotData(id, botName, serverName, channelName, messageDelay, email, password))
             {
 
                 if (await DiscordianDbContext.AccountIsSavedAsync(email, password))
@@ -164,63 +167,25 @@ namespace Discordian.Views
 
             if (ActiveBots.GetValueOrDefault(id) == false)
             {
-                try
-                {
-                    var messages = await DiscordianDbContext.GetMessagesForBotAsync(id);
-                    var bot = await DiscordianDbContext.FindBotByIdAsync(id);
+                var messages = await DiscordianDbContext.GetMessagesForBotAsync(id);
+                var bot = await DiscordianDbContext.FindBotByIdAsync(id);
 
-                    var valueSet = new ValueSet();
-                    valueSet.Add("request", "start");
-                    valueSet.Add("messages", await Json.StringifyAsync(messages));
-                    valueSet.Add("bot", await Json.StringifyAsync(bot));
+                await DiscordianBotConsoleClient.StartBotAsync(bot, messages);
 
-                    if (App.Connection != null)
-                    {
-                        var response = await App.Connection.SendMessageAsync(valueSet);
-                    }
+                ActiveBots[id] = true;
 
-                    ActiveBots[id] = true;
-
-                    var fontIcon = new FontIcon();
-                    fontIcon.FontSize = 24;
-                    fontIcon.VerticalAlignment = VerticalAlignment.Center;
-                    fontIcon.Glyph = "\xE769";
-
-                    button.Content = fontIcon;
-                }
-                catch (ArgumentException ex)
-                {
-                    //TODO: Implement notification if bot fails to send data
-                }
+                this.SwitchToStopIcon(button);
             }
             else
             {
-                try
-                {
-                    var valueSet = new ValueSet();
-                    valueSet.Add("request", "stop");
-                    valueSet.Add("id", id.ToString());
+                await DiscordianBotConsoleClient.StopBotAsync(id);
 
-                    if (App.Connection != null)
-                    {
-                        var response = await App.Connection.SendMessageAsync(valueSet);
-                    }
+                ActiveBots[id] = false;
 
-                    ActiveBots[id] = false;
-
-                    var fontIcon = new FontIcon();
-                    fontIcon.FontSize = 24;
-                    fontIcon.VerticalAlignment = VerticalAlignment.Center;
-                    fontIcon.Glyph = "\xE768";
-
-                    button.Content = fontIcon;
-                }
-                catch (ArgumentException ex)
-                {
-                    //TODO: Implement notification if bot fails to send data
-                }
+                this.SwitchToStartIcon(button);
             }
         }
+
 
         private void ShowDeleteBotFlyout_Click(object sender, RoutedEventArgs e)
         {
@@ -263,24 +228,43 @@ namespace Discordian.Views
             }
         }
 
-        private bool InformationIsPresent(string id, string botName, string serverName, string channelName, string messageDelay, string email, string password)
+        private bool ValidateBotData(string id, string botName, string serverName, string channelName, string messageDelay, string email, string password)
         {
-            return !string.IsNullOrEmpty(id) && !string.IsNullOrEmpty(serverName) && !string.IsNullOrEmpty(channelName) && !string.IsNullOrEmpty(messageDelay) && !string.IsNullOrEmpty(email) && !string.IsNullOrEmpty(password);
+            var isIdValidGuid = Guid.TryParse(id, out Guid result);
+            var isEmailValid = Regex.Match(email, "^[\\w.-]+@(?=[a-z\\d][^.]*\\.)[a-z\\d.-]*[^.]$").Success;
+            var isBotNameValid = botName.Length <= 25;
+
+            return isIdValidGuid && isEmailValid && isBotNameValid;
         }
 
         private void StartStopButton_Loaded(object sender, RoutedEventArgs e)
         {
-            var id = Guid.Parse((sender as Button).Tag.ToString());
-
+            var button = sender as Button;
+            var id = Guid.Parse(button.Tag.ToString());
             if (ActiveBots[id])
             {
-                var fontIcon = new FontIcon();
-                fontIcon.FontSize = 24;
-                fontIcon.VerticalAlignment = VerticalAlignment.Center;
-                fontIcon.Glyph = "\xE769";
-
-                (sender as Button).Content = fontIcon;
+                this.SwitchToStopIcon(button);
             }
+        }
+
+        private void SwitchToStopIcon(Button button)
+        {
+            var fontIcon = new FontIcon();
+            fontIcon.FontSize = 24;
+            fontIcon.VerticalAlignment = VerticalAlignment.Center;
+            fontIcon.Glyph = "\xE769";
+
+            button.Content = fontIcon;
+        }
+
+        private void SwitchToStartIcon(Button button)
+        {
+            var fontIcon = new FontIcon();
+            fontIcon.FontSize = 24;
+            fontIcon.VerticalAlignment = VerticalAlignment.Center;
+            fontIcon.Glyph = "\xE768";
+
+            button.Content = fontIcon;
         }
     }
 }

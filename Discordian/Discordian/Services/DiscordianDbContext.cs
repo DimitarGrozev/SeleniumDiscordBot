@@ -39,8 +39,12 @@ namespace Discordian.Services
 
         public static async Task LogoutAsync()
         {
-            var file = await ApplicationData.Current.LocalFolder.GetFileAsync(credentialsFilePath);
-            await file.DeleteAsync();
+            var file = await ApplicationData.Current.LocalFolder.TryGetItemAsync(credentialsFilePath);
+
+            if (file != null)
+            {
+                await file.DeleteAsync();
+            }
         }
 
         public static async Task<int> GetBotCountAsync()
@@ -53,13 +57,17 @@ namespace Discordian.Services
 
         public static async Task<Messages> GetAllMessagesAsync()
         {
-            var file = await ApplicationData.Current.LocalFolder.GetFileAsync(messagesFilePath);
-            var serializedString = await FileIO.ReadTextAsync(file);
-            var messages = await Json.ToObjectAsync<Messages>(serializedString);
+            var file = (IStorageFile)await ApplicationData.Current.LocalFolder.TryGetItemAsync(messagesFilePath);
 
-            if (messages != null)
+            if (file != null)
             {
-                return messages;
+                var serializedString = await FileIO.ReadTextAsync(file);
+                var messages = await Json.ToObjectAsync<Messages>(serializedString);
+
+                if (messages != null)
+                {
+                    return messages;
+                }
             }
 
             throw new ArgumentNullException("Messages could not be found!");
@@ -74,23 +82,31 @@ namespace Discordian.Services
             {
                 bot.DiscordData = discordData;
 
-                var file = await ApplicationData.Current.LocalFolder.GetFileAsync(targetsFilePath);
-                var botsData = new BotsData { Bots = bots };
-                var serializedString = await Json.StringifyAsync(botsData);
+                var file = (IStorageFile)await ApplicationData.Current.LocalFolder.TryGetItemAsync(targetsFilePath);
 
-                await FileIO.WriteTextAsync(file, serializedString);
+                if (file != null)
+                {
+                    var botsData = new BotsData { Bots = bots };
+                    var serializedString = await Json.StringifyAsync(botsData);
+
+                    await FileIO.WriteTextAsync(file, serializedString);
+                }
             }
         }
 
         public static async Task<Messages> GetMessagesForBotAsync(Guid id)
         {
-            var file = await ApplicationData.Current.LocalFolder.GetFileAsync(id + ".json");
-            var serializedString = await FileIO.ReadTextAsync(file);
-            var messages = await Json.ToObjectAsync<Messages>(serializedString);
+            var file = (IStorageFile)await ApplicationData.Current.LocalFolder.TryGetItemAsync(id + ".json");
 
-            if (messages != null)
+            if (file != null)
             {
-                return messages;
+                var serializedString = await FileIO.ReadTextAsync(file);
+                var messages = await Json.ToObjectAsync<Messages>(serializedString);
+
+                if (messages != null)
+                {
+                    return messages;
+                }
             }
 
             throw new ArgumentNullException("Messages could not be found!");
@@ -125,20 +141,12 @@ namespace Discordian.Services
             credentials.Accounts.Add(account);
 
             var serializedString = await Json.StringifyAsync(credentials);
-            var file = await ApplicationData.Current.LocalFolder.GetFileAsync(credentialsFilePath);
-            await FileIO.WriteTextAsync(file, serializedString);
-        }
+            var file = (IStorageFile)await ApplicationData.Current.LocalFolder.TryGetItemAsync(credentialsFilePath);
 
-        public static async Task<Account> AuthenticateAsync(string email, string password, string token)
-        {
-            var sanitizedToken = token.Replace("\"", "");
-            var credentials = new Account { Email = email, Password = password, Token = sanitizedToken };
-            var serializedString = await Json.StringifyAsync(credentials);
-            var file = await ApplicationData.Current.LocalFolder.CreateFileAsync(credentialsFilePath, CreationCollisionOption.OpenIfExists);
-
-            await FileIO.WriteTextAsync(file, serializedString);
-
-            return credentials;
+            if (file != null)
+            {
+                await FileIO.WriteTextAsync(file, serializedString);
+            }
         }
 
         public static async Task<bool> IsAuthenticatedAsync()
@@ -191,18 +199,17 @@ namespace Discordian.Services
 
         public static async Task<List<Bot>> GetBotListAsync()
         {
-            try
+            var file = (IStorageFile)await ApplicationData.Current.LocalFolder.TryGetItemAsync(targetsFilePath);
+
+            if (file != null)
             {
-                var file = await ApplicationData.Current.LocalFolder.GetFileAsync(targetsFilePath);
                 var serializedString = await FileIO.ReadTextAsync(file);
                 var botsData = await Json.ToObjectAsync<BotsData>(serializedString);
 
                 if (botsData.Bots?.Count > 0)
+                {
                     return botsData.Bots;
-            }
-            catch (Exception e)
-            {
-                //TODO: add logging
+                }
             }
 
             return new List<Bot>();
@@ -223,13 +230,12 @@ namespace Discordian.Services
 
         public static async Task DeleteMessagesForBotAsync(string fileName)
         {
-            try
-            {
-                var file = await ApplicationData.Current.LocalFolder.GetFileAsync(fileName + ".json");
+            var file = await ApplicationData.Current.LocalFolder.TryGetItemAsync(fileName + ".json");
 
+            if (file != null)
+            {
                 await file.DeleteAsync();
             }
-            catch (Exception) { }
         }
 
         public static async Task<Bot> CreateBotAsync(string id, string botName, string serverName, string channelName, int messageDelay, string email, string password, string token)
@@ -282,12 +288,16 @@ namespace Discordian.Services
             {
                 bots.Remove(bot);
 
-                var file = await ApplicationData.Current.LocalFolder.GetFileAsync(targetsFilePath);
-                var botsData = new BotsData { Bots = bots };
-                var serializedString = await Json.StringifyAsync(botsData);
+                var file = (IStorageFile)await ApplicationData.Current.LocalFolder.TryGetItemAsync(targetsFilePath);
 
-                await FileIO.WriteTextAsync(file, serializedString);
-                await DeleteMessagesForBotAsync(id.ToString());
+                if (file != null)
+                {
+                    var botsData = new BotsData { Bots = bots };
+                    var serializedString = await Json.StringifyAsync(botsData);
+
+                    await FileIO.WriteTextAsync(file, serializedString);
+                    await DeleteMessagesForBotAsync(id.ToString());
+                }
             }
         }
 
@@ -302,16 +312,9 @@ namespace Discordian.Services
 
         private static async Task<bool> AppFilesExist()
         {
-            try
-            {
-                var credentials = await ApplicationData.Current.LocalFolder.GetFileAsync(credentialsFilePath);
-            }
-            catch (Exception)
-            {
-                return false;
-            }
+            var credentials = await ApplicationData.Current.LocalFolder.TryGetItemAsync(credentialsFilePath);
 
-            return true;
+            return credentials != null;
         }
 
     }
