@@ -215,17 +215,14 @@ namespace Discordian.Services
             return new List<Bot>();
         }
 
-        public static async Task<Guid> SaveMessagesForBotAsync(StorageFile chosenFile)
+        public static async Task CreateMessagesForBotAsync(StorageFile chosenFile)
         {
             var fileContent = await FileIO.ReadLinesAsync(chosenFile);
             var messages = new Messages { Sentences = fileContent.ToList() };
             var serializedMessages = await Json.StringifyAsync(messages);
-            var botId = Guid.NewGuid();
 
-            var localMessagesFile = await ApplicationData.Current.LocalFolder.CreateFileAsync(botId + ".json");
+            var localMessagesFile = await ApplicationData.Current.LocalFolder.CreateFileAsync("temp" + ".json");
             await FileIO.WriteTextAsync(localMessagesFile, serializedMessages);
-
-            return botId;
         }
 
         public static async Task DeleteMessagesForBotAsync(string fileName)
@@ -238,16 +235,29 @@ namespace Discordian.Services
             }
         }
 
-        public static async Task<Bot> CreateBotAsync(string id, string botName, string serverName, string channelName, int messageDelay, string email, string password, string token)
+        public static async Task DeleteMessagesForBotInCreationAsync()
+        {
+            var file = await ApplicationData.Current.LocalFolder.TryGetItemAsync("temp.json");
+
+            if (file != null)
+            {
+                await file.DeleteAsync();
+            }
+        }
+
+
+        public static async Task<Bot> CreateBotAsync(string botName, string serverName, string channelName, int messageDelay, string email, string password, string token, string messageFileName, DiscordData discordData)
         {
             var bot = new Bot();
             var credentials = new Account { Email = email, Password = password, Token = token };
 
-            bot.Id = Guid.Parse(id);
+            bot.Id = Guid.NewGuid();
             bot.Name = botName;
             bot.Server = new Server { Name = serverName, Channel = channelName };
             bot.MessageDelay = messageDelay;
             bot.Credentials = credentials;
+            bot.MessagesFileName = messageFileName;
+            bot.DiscordData = discordData;
 
             var file = await ApplicationData.Current.LocalFolder.CreateFileAsync(targetsFilePath, CreationCollisionOption.OpenIfExists);
             var serializedString = await FileIO.ReadTextAsync(file);
@@ -263,7 +273,16 @@ namespace Discordian.Services
             var serializedBotsDataString = await Json.StringifyAsync(botsData);
             await FileIO.WriteTextAsync(file, serializedBotsDataString);
 
+            await SaveMessagesForBot(bot.Id.ToString());
+
             return bot;
+        }
+
+        private static async Task SaveMessagesForBot(string id)
+        {
+            var file = await ApplicationData.Current.LocalFolder.TryGetItemAsync("temp.json");
+
+            await file.RenameAsync(id + ".json");
         }
 
         public static async Task<string> GetPasswordForAccountAsync(string email)
@@ -301,6 +320,16 @@ namespace Discordian.Services
             }
         }
 
+        public static async Task UpdateMessagesForBotAsync(string id, StorageFile file)
+        {
+            var fileContent = await FileIO.ReadLinesAsync(file);
+            var messages = new Messages { Sentences = fileContent.ToList() };
+            var serializedMessages = await Json.StringifyAsync(messages);
+
+            var localMessagesFile = await ApplicationData.Current.LocalFolder.CreateFileAsync(id + ".json", CreationCollisionOption.OpenIfExists);
+            await FileIO.WriteTextAsync(localMessagesFile, serializedMessages);
+        }
+
         private static async Task InitializeCredentials()
         {
             var appSettingsFile = await ApplicationData.Current.LocalFolder.CreateFileAsync(credentialsFilePath, CreationCollisionOption.FailIfExists);
@@ -317,5 +346,20 @@ namespace Discordian.Services
             return credentials != null;
         }
 
+        public static async Task<Bot> GetBotByIdAsync(Guid id)
+        {
+            if (id != null)
+            {
+                var bots = await GetBotListAsync();
+                var bot = bots.FirstOrDefault(b => b.Id == id);
+
+                if (bot != null)
+                {
+                    return bot;
+                }
+            }
+
+            throw new ArgumentException("No bot with such id was found!");
+        }
     }
 }

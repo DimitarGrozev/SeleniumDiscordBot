@@ -14,6 +14,8 @@ using Windows.UI.ViewManagement;
 using Discordian.Core.Models.XAML;
 using Windows.UI.Input.Preview.Injection;
 using Windows.System;
+using Discordian.Core.Models;
+using System.Threading.Tasks;
 
 namespace Discordian.Views
 {
@@ -57,6 +59,7 @@ namespace Discordian.Views
 
                 emails.ForEach(a => this.EmailTextBox.Items.Add(a));
 
+                this.cancelBtn.IsEnabled = true;
                 await AddBotContentDialog.ShowAsync();
             }
             else
@@ -69,23 +72,24 @@ namespace Discordian.Views
         {
             this.ProgressSpinner.IsActive = true;
 
-            var id = this.BotIdTextBox.Text;
             var botName = this.BotNameTextBox.Text;
             var serverName = this.ServerNameTextBox.SelectedItem.ToString();
             var channelName = this.ChannelNameTextBox.SelectedItem.ToString();
             var messageDelay = this.MessageDelayNumberBox.Text;
             var email = this.EmailTextBox.Text;
             var password = this.PasswordTextBox.Password;
+            var chosenFileName = this.ChosenFileName.Text;
             var token = this.TokenTextBox.Text;
+            var bot = new Bot();
 
-            if (this.ValidateBotDetails(id, botName, serverName, channelName, messageDelay))
+            if (this.ValidateBotDetails(botName, serverName, channelName, messageDelay, chosenFileName))
             {
                 try
                 {
                     var discordData = await DiscordApiClient.GetDiscordDataForBot(serverName, channelName, token);
 
-                    await DiscordianDbContext.AddDiscordDataToBotAsync(discordData, Guid.Parse(id));
-                    await DiscordianDbContext.CreateBotAsync(id, botName, serverName, channelName, int.Parse(messageDelay), email, password, token);
+                    bot = await DiscordianDbContext.CreateBotAsync(botName, serverName, channelName, int.Parse(messageDelay), email, password, token, chosenFileName, discordData);
+
                 }
                 catch (ArgumentException ex)
                 {
@@ -118,7 +122,7 @@ namespace Discordian.Views
                 this.AccountSelectionTab.IsEnabled = true;
                 this.BotDetailsTab.IsEnabled = false;
 
-                ActiveBots[Guid.Parse(id)] = false;
+                ActiveBots[bot.Id] = false;
 
                 await ViewModel.LoadDataAsync(ListDetailsViewControl.ViewState);
             }
@@ -176,6 +180,48 @@ namespace Discordian.Views
             }
         }
 
+        private async void ShowEditDialog_Click(object sender, RoutedEventArgs e)
+        {
+            var id = (sender as Button).Tag.ToString();
+
+            if (!string.IsNullOrEmpty(id))
+            {
+                var parsedId = Guid.Parse(id);
+                var bot = await DiscordianDbContext.GetBotByIdAsync(parsedId);
+                await this.PopulateBotDataForEdit(bot);
+
+                await EditBotContentDialog.ShowAsync();
+
+                this.BotDetailsTab.IsEnabled = true;
+                this.BotDetailsTab.IsSelected = true;
+                this.AccountSelectionTab.IsEnabled = false;
+            }
+        }
+
+        private async Task PopulateBotDataForEdit(Bot bot)
+        {
+            this.EditBotId.Text = bot.Id.ToString();
+            this.EditBotNameTextBox.Text = bot.Name;
+
+            var servers = await DiscordApiClient.GetServersForUserAsync(bot.Credentials.Token);
+            this.EditServerNameTextBox.Text = bot.Server.Name;
+            this.EditServerNameTextBox.Items.Clear();
+            servers.ForEach(s => this.EditServerNameTextBox.Items.Add(new ComboboxItem { Text = s.Name, Value = s.Id }));
+
+            var channels = await DiscordApiClient.GetChannelsInServerAsync(bot.DiscordData.ServerId, bot.Credentials.Token);
+            this.EditChannelNameTextBox.Text = bot.Server.Channel;
+            this.EditChannelNameTextBox.Items.Clear();
+            channels.ForEach(c =>
+            {
+                if (c.Type == 0)
+                {
+                    this.EditChannelNameTextBox.Items.Add(c.Name);
+                }
+            });
+
+            this.EditMessageDelayNumberBox.Text = bot.MessageDelay.ToString();
+            this.EditChosenFileName.Text = bot.MessagesFileName;
+        }
 
         private void ShowDeleteBotFlyout_Click(object sender, RoutedEventArgs e)
         {
@@ -202,9 +248,8 @@ namespace Discordian.Views
 
             if (file != null)
             {
-                var botId = await DiscordianDbContext.SaveMessagesForBotAsync(file);
+                await DiscordianDbContext.CreateMessagesForBotAsync(file);
                 this.ChosenFileName.Text = file.Name;
-                this.BotIdTextBox.Text = botId.ToString();
             }
         }
 
@@ -222,6 +267,7 @@ namespace Discordian.Views
         {
             var button = sender as Button;
             var id = Guid.Parse(button.Tag.ToString());
+
             if (ActiveBots[id])
             {
                 this.SwitchToStopIcon(button);
@@ -322,7 +368,7 @@ namespace Discordian.Views
 
         private async void BackToAccount_Click(object sender, RoutedEventArgs e)
         {
-            await DiscordianDbContext.DeleteMessagesForBotAsync(this.BotIdTextBox.Text);
+            await DiscordianDbContext.DeleteMessagesForBotInCreationAsync();
 
             this.BotIdTextBox.Text = string.Empty;
             this.BotNameTextBox.Text = string.Empty;
@@ -347,15 +393,25 @@ namespace Discordian.Views
             return isPasswordPresent && isEmailValid;
         }
 
-        private bool ValidateBotDetails(string id, string botName, string serverName, string channelName, string messageDelay)
+        private bool ValidateBotDetails(string botName, string serverName, string channelName, string messageDelay, string messagesFileName)
         {
-            var isIdValidGuid = Guid.TryParse(id, out Guid result);
             var isBotNameValid = botName.Length <= 25;
             var isServerNamePresent = !string.IsNullOrEmpty(serverName);
             var isChannelNamePresent = !string.IsNullOrEmpty(channelName);
             var isMessageDelayValid = double.TryParse(messageDelay, out double delay);
+            var isMessagesFilePresent = messagesFileName.Length > 0;
 
-            return isIdValidGuid && isBotNameValid && isServerNamePresent && isChannelNamePresent && isMessageDelayValid;
+            return isBotNameValid && isServerNamePresent && isChannelNamePresent && isMessageDelayValid && isMessagesFilePresent;
+        }
+
+        private void EditBotButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void CancelBotEdit_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }
