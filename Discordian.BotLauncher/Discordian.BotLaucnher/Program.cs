@@ -146,6 +146,25 @@ namespace Discordian.BotLauncher
 
 				var botStopResponse = connection.SendMessageAsync(response);
 			}
+			else if (key == "stopAll")
+			{
+				var allKeys = CancellationTokens.Keys.ToList();
+
+				foreach (var botId in CancellationTokens.Keys)
+				{
+					CancellationTokens[botId].Cancel();
+
+					CancellationTokens.Remove(botId);
+					RunningThreads.Remove(botId);
+				}
+
+				Console.WriteLine("Stopped all bots");
+
+				var response = new ValueSet();
+				response.Add("received", true);
+
+				var botStopAllResponse = connection.SendMessageAsync(response);
+			}
 		}
 	}
 }
