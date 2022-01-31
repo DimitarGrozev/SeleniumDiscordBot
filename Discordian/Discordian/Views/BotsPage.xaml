@@ -32,8 +32,7 @@
                     Grid.Column="0"
                     VerticalAlignment="Center"
                     FontSize="24"
-                    Glyph="&#xE99A;"
-                />
+                    Glyph="&#xE99A;"/>
 
                 <StackPanel
                     Orientation="Horizontal"
@@ -135,7 +134,7 @@
 
                 <Button
                     x:Name="ShowBotCreationDialogButton"
-                    Click="ShowBotCreationDialog"
+                    Click="ShowBotCreationDialog_Click"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Center"
                     Grid.Column="1"
@@ -301,11 +300,11 @@
 
                                 <TextBox Margin="0,0,0,10" x:Name="EditBotNameTextBox" Header="Bot name" PlaceholderText="Your bot name..." MaxLength="25" HorizontalAlignment="Stretch"/>
 
-                                <ComboBox Margin="0,0,0,10" x:Name="EditServerNameTextBox" Header="Server name" PlaceholderText="Server you want to target..." HorizontalAlignment="Stretch" SelectionChanged="EditServer_SelectionChanged"/>
+                                <ComboBox Margin="0,0,0,10" x:Name="EditServerNameTextBox" Header="Server name" HorizontalAlignment="Stretch" IsEnabled="False"/>
 
-                                <ComboBox Margin="0,0,0,10" x:Name="EditChannelNameTextBox" Header="Channel name" PlaceholderText="Channel you want to target..." HorizontalAlignment="Stretch"/>
+                                <ComboBox Margin="0,0,0,10" x:Name="EditChannelNameTextBox" Header="Channel name" HorizontalAlignment="Stretch" IsEnabled="False"/>
 
-                                <muxc:NumberBox Margin="0,0,0,10" x:Name="EditMessageDelayNumberBox" Header="Message delay:" PlaceholderText="Delay in seconds" SpinButtonPlacementMode="Inline" Value="0" Minimum="0" SmallChange="5" LargeChange="10"/>
+                                <muxc:NumberBox Margin="0,0,0,10" x:Name="EditMessageDelayNumberBox" Header="Message delay (seconds)" PlaceholderText="Delay in seconds" SpinButtonPlacementMode="Inline" Value="0" Minimum="0" SmallChange="5" LargeChange="10"/>
 
                                 <StackPanel>
                                     <Grid>

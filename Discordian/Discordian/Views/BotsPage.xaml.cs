@@ -16,6 +16,7 @@ using Windows.UI.Input.Preview.Injection;
 using Windows.System;
 using Discordian.Core.Models;
 using System.Threading.Tasks;
+using Windows.UI.Xaml.Media;
 
 namespace Discordian.Views
 {
@@ -43,7 +44,7 @@ namespace Discordian.Views
             }
         }
 
-        private async void ShowBotCreationDialog(object sender, RoutedEventArgs e)
+        private async void ShowBotCreationDialog_Click(object sender, RoutedEventArgs e)
         {
             var botCount = await DiscordianDbContext.GetBotCountAsync();
 
@@ -138,6 +139,7 @@ namespace Discordian.Views
             AddBotContentDialog.Hide();
 
             this.EmailTextBox.Text = string.Empty;
+            this.EmailTextBox.SelectedItem = string.Empty;
             this.PasswordTextBox.Password = string.Empty;
             this.BotIdTextBox.Text = string.Empty;
             this.BotNameTextBox.Text = string.Empty;
@@ -169,6 +171,7 @@ namespace Discordian.Views
                 ActiveBots[id] = true;
 
                 this.SwitchToStopIcon(button);
+                this.DisableBotOperations(button);
             }
             else
             {
@@ -177,6 +180,7 @@ namespace Discordian.Views
                 ActiveBots[id] = false;
 
                 this.SwitchToStartIcon(button);
+                this.EnableBotOperations(button);
             }
         }
 
@@ -188,40 +192,10 @@ namespace Discordian.Views
             {
                 var parsedId = Guid.Parse(id);
                 var bot = await DiscordianDbContext.GetBotByIdAsync(parsedId);
-                await this.PopulateBotDataForEdit(bot);
+                this.PopulateBotDataForEdit(bot);
 
                 await EditBotContentDialog.ShowAsync();
-
-                this.BotDetailsTab.IsEnabled = true;
-                this.BotDetailsTab.IsSelected = true;
-                this.AccountSelectionTab.IsEnabled = false;
             }
-        }
-
-        private async Task PopulateBotDataForEdit(Bot bot)
-        {
-            this.EditBotId.Text = bot.Id.ToString();
-            this.EditBotNameTextBox.Text = bot.Name;
-
-            var servers = await DiscordApiClient.GetServersForUserAsync(bot.Credentials.Token);
-            this.EditServerNameTextBox.Text = bot.Server.Name;
-            this.EditServerNameTextBox.Items.Clear();
-            servers.ForEach(s => this.EditServerNameTextBox.Items.Add(new ComboboxItem { Text = s.Name, Value = s.Id }));
-
-            var channels = await DiscordApiClient.GetChannelsInServerAsync(bot.DiscordData.ServerId, bot.Credentials.Token);
-            this.EditChannelNameTextBox.Text = bot.Server.Channel;
-            this.EditChannelNameTextBox.Items.Clear();
-            channels.ForEach(c =>
-            {
-                if (c.Type == 0)
-                {
-                    this.EditChannelNameTextBox.Items.Add(c.Name);
-                }
-            });
-
-            this.EditMessageDelayNumberBox.Value = bot.MessageDelay;
-            this.EditChosenFileName.Text = bot.MessagesFileName;
-            this.TokenTextBox.Text = bot.Credentials.Token;
         }
 
         private void ShowDeleteBotFlyout_Click(object sender, RoutedEventArgs e)
@@ -262,37 +236,6 @@ namespace Discordian.Views
             {
                 this.PasswordTextBox.Password = password;
             }
-        }
-
-        private void StartStopButton_Loaded(object sender, RoutedEventArgs e)
-        {
-            var button = sender as Button;
-            var id = Guid.Parse(button.Tag.ToString());
-
-            if (ActiveBots[id])
-            {
-                this.SwitchToStopIcon(button);
-            }
-        }
-
-        private void SwitchToStopIcon(Button button)
-        {
-            var fontIcon = new FontIcon();
-            fontIcon.FontSize = 24;
-            fontIcon.VerticalAlignment = VerticalAlignment.Center;
-            fontIcon.Glyph = "\xE769";
-
-            button.Content = fontIcon;
-        }
-
-        private void SwitchToStartIcon(Button button)
-        {
-            var fontIcon = new FontIcon();
-            fontIcon.FontSize = 24;
-            fontIcon.VerticalAlignment = VerticalAlignment.Center;
-            fontIcon.Glyph = "\xE768";
-
-            button.Content = fontIcon;
         }
 
         private async void ChooseAccount_Click(object sender, RoutedEventArgs e)
@@ -367,27 +310,6 @@ namespace Discordian.Views
             }
         }
 
-        private async void EditServer_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            var server = (sender as ComboBox).SelectedItem as ComboboxItem;
-
-            if (server != null)
-            {
-                var token = this.TokenTextBox.Text;
-
-                var channels = await DiscordApiClient.GetChannelsInServerAsync(server.Value.ToString(), token);
-
-                this.EditChannelNameTextBox.Items.Clear();
-                channels.ForEach(c =>
-                {
-                    if (c.Type == 0)
-                    {
-                        this.EditChannelNameTextBox.Items.Add(c.Name);
-                    }
-                });
-            }
-        }
-
         private async void BackToAccount_Click(object sender, RoutedEventArgs e)
         {
             await DiscordianDbContext.DeleteMessagesForBotInCreationAsync();
@@ -407,6 +329,58 @@ namespace Discordian.Views
             this.BotDetailsTab.IsEnabled = false;
         }
 
+        private async void EditBotButton_Click(object sender, RoutedEventArgs e)
+        {
+            var id = this.EditBotId.Text;
+            var botName = this.EditBotNameTextBox.Text;
+            var messageDelay = Convert.ToInt32(this.EditMessageDelayNumberBox.Value);
+            var messagesFileName = this.EditChosenFileName.Text;
+
+            await DiscordianDbContext.EditBotAsync(id, botName, messageDelay, messagesFileName);
+
+            this.EditBotContentDialog.Hide();
+
+            await ViewModel.LoadDataAsync(ListDetailsViewControl.ViewState);
+        }
+
+        private async void CancelBotEdit_Click(object sender, RoutedEventArgs e)
+        {
+            this.EditBotId.Text = string.Empty;
+            this.EditBotNameTextBox.Text = string.Empty;
+
+            this.EditServerNameTextBox.SelectedItem = string.Empty;
+
+            this.EditChannelNameTextBox.SelectedItem = string.Empty;
+
+            this.EditMessageDelayNumberBox.Value = 0;
+            this.EditChosenFileName.Text = string.Empty;
+
+            this.EditBotContentDialog.Hide();
+
+            await DiscordianDbContext.DeleteMessagesForBotInCreationAsync();
+        }
+
+        private void EnableBotOperations(Button button)
+        {
+            var parent = VisualTreeHelper.GetParent(button);
+
+            var editButton = VisualTreeHelper.GetChild(parent, 2) as Button;
+            editButton.IsEnabled = true;
+
+            var deleteButton = VisualTreeHelper.GetChild(parent, 3) as Button;
+            deleteButton.IsEnabled = true;
+        }
+
+        private void DisableBotOperations(Button button)
+        {
+            var parent = VisualTreeHelper.GetParent(button);
+
+            var editButton = VisualTreeHelper.GetChild(parent, 2) as Button;
+            editButton.IsEnabled = false;
+
+            var deleteButton = VisualTreeHelper.GetChild(parent, 3) as Button;
+            deleteButton.IsEnabled = false;
+        }
         private bool ValidateCredentials(string email, string password)
         {
             var isEmailValid = Regex.Match(email, "^[\\w.-]+@(?=[a-z\\d][^.]*\\.)[a-z\\d.-]*[^.]$").Success;
@@ -426,14 +400,50 @@ namespace Discordian.Views
             return isBotNameValid && isServerNamePresent && isChannelNamePresent && isMessageDelayValid && isMessagesFilePresent;
         }
 
-        private void EditBotButton_Click(object sender, RoutedEventArgs e)
+        private void SwitchToStopIcon(Button button)
         {
+            var fontIcon = new FontIcon();
+            fontIcon.FontSize = 24;
+            fontIcon.VerticalAlignment = VerticalAlignment.Center;
+            fontIcon.Glyph = "\xE769";
 
+            button.Content = fontIcon;
         }
 
-        private void CancelBotEdit_Click(object sender, RoutedEventArgs e)
+        private void SwitchToStartIcon(Button button)
         {
+            var fontIcon = new FontIcon();
+            fontIcon.FontSize = 24;
+            fontIcon.VerticalAlignment = VerticalAlignment.Center;
+            fontIcon.Glyph = "\xE768";
 
+            button.Content = fontIcon;
+        }
+
+        private void StartStopButton_Loaded(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var id = Guid.Parse(button.Tag.ToString());
+
+            if (ActiveBots[id])
+            {
+                this.SwitchToStopIcon(button);
+            }
+        }
+
+        private void PopulateBotDataForEdit(Bot bot)
+        {
+            this.EditBotId.Text = bot.Id.ToString();
+            this.EditBotNameTextBox.Text = bot.Name;
+
+            this.EditServerNameTextBox.PlaceholderText = bot.Server.Name;
+            this.EditServerNameTextBox.Items.Clear();
+
+            this.EditChannelNameTextBox.PlaceholderText = bot.Server.Channel;
+            this.EditChannelNameTextBox.Items.Clear();
+
+            this.EditMessageDelayNumberBox.Value = bot.MessageDelay;
+            this.EditChosenFileName.Text = bot.MessagesFileName;
         }
     }
 }

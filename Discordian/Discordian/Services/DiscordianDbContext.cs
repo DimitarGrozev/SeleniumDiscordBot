@@ -37,40 +37,12 @@ namespace Discordian.Services
             return emails;
         }
 
-        public static async Task LogoutAsync()
-        {
-            var file = await ApplicationData.Current.LocalFolder.TryGetItemAsync(credentialsFilePath);
-
-            if (file != null)
-            {
-                await file.DeleteAsync();
-            }
-        }
-
         public static async Task<int> GetBotCountAsync()
         {
             var bots = await GetBotListAsync();
             var count = bots.Count;
 
             return count;
-        }
-
-        public static async Task<Messages> GetAllMessagesAsync()
-        {
-            var file = (IStorageFile)await ApplicationData.Current.LocalFolder.TryGetItemAsync(messagesFilePath);
-
-            if (file != null)
-            {
-                var serializedString = await FileIO.ReadTextAsync(file);
-                var messages = await Json.ToObjectAsync<Messages>(serializedString);
-
-                if (messages != null)
-                {
-                    return messages;
-                }
-            }
-
-            throw new ArgumentNullException("Messages could not be found!");
         }
 
         public static async Task AddDiscordDataToBotAsync(DiscordData discordData, Guid id)
@@ -360,6 +332,44 @@ namespace Discordian.Services
             }
 
             throw new ArgumentException("No bot with such id was found!");
+        }
+
+        public static async Task EditBotAsync(string id, string botName, int messageDelay, string messagesFileName)
+        {
+            var bots = await GetBotListAsync();
+            var bot = bots.FirstOrDefault(b => b.Id == Guid.Parse(id));
+
+            if (bot != null)
+            {
+                bot.Name = botName;
+                bot.MessageDelay = messageDelay;
+                bot.MessagesFileName = messagesFileName;
+
+                var file = (IStorageFile)await ApplicationData.Current.LocalFolder.TryGetItemAsync(targetsFilePath);
+
+                if (file != null)
+                {
+                    var botsData = new BotsData { Bots = bots };
+                    var serializedString = await Json.StringifyAsync(botsData);
+
+                    await FileIO.WriteTextAsync(file, serializedString);
+
+                    var shouldReplaceMessages = await CheckIfNewMessagesHaveBeenSelected();
+
+                    if (shouldReplaceMessages)
+                    {
+                        await DeleteMessagesForBotAsync(id.ToString());
+                        await SaveMessagesForBot(bot.Id.ToString());
+                    }
+                }
+            }
+        }
+
+        private static async Task<bool> CheckIfNewMessagesHaveBeenSelected()
+        {
+            var file = await ApplicationData.Current.LocalFolder.TryGetItemAsync("temp.json");
+
+            return file != null;
         }
     }
 }
