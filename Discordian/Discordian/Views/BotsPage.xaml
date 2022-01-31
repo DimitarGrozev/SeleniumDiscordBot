@@ -285,11 +285,11 @@
         <ContentDialog
             x:Name="EditBotContentDialog"
             Title="Edit bot"
-            Width="542"
+            Width="Auto"
             HorizontalAlignment="Center"
             VerticalAlignment="Center">
 
-            <muxc:TabView CanDrag="False" CanDragTabs="False" CanReorderTabs="False" IsAddTabButtonVisible="False" x:Name="BotEditTabView">
+            <muxc:TabView CanDrag="False" CanDragTabs="False" CanReorderTabs="False" IsAddTabButtonVisible="False" x:Name="BotEditTabView" Width="490">
                 <muxc:TabView.TabItems>
                     <muxc:TabViewItem x:Name="BotEditDetailsTab" Header="Bot details" IsClosable="False">
                         <muxc:TabViewItem.IconSource>
@@ -301,7 +301,7 @@
 
                                 <TextBox Margin="0,0,0,10" x:Name="EditBotNameTextBox" Header="Bot name" PlaceholderText="Your bot name..." MaxLength="25" HorizontalAlignment="Stretch"/>
 
-                                <ComboBox Margin="0,0,0,10" x:Name="EditServerNameTextBox" Header="Server name" PlaceholderText="Server you want to target..." HorizontalAlignment="Stretch" SelectionChanged="Server_SelectionChanged"/>
+                                <ComboBox Margin="0,0,0,10" x:Name="EditServerNameTextBox" Header="Server name" PlaceholderText="Server you want to target..." HorizontalAlignment="Stretch" SelectionChanged="EditServer_SelectionChanged"/>
 
                                 <ComboBox Margin="0,0,0,10" x:Name="EditChannelNameTextBox" Header="Channel name" PlaceholderText="Channel you want to target..." HorizontalAlignment="Stretch"/>
 

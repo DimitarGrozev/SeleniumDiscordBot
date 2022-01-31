@@ -219,8 +219,9 @@ namespace Discordian.Views
                 }
             });
 
-            this.EditMessageDelayNumberBox.Text = bot.MessageDelay.ToString();
+            this.EditMessageDelayNumberBox.Value = bot.MessageDelay;
             this.EditChosenFileName.Text = bot.MessagesFileName;
+            this.TokenTextBox.Text = bot.Credentials.Token;
         }
 
         private void ShowDeleteBotFlyout_Click(object sender, RoutedEventArgs e)
@@ -361,6 +362,27 @@ namespace Discordian.Views
                     if (c.Type == 0)
                     {
                         ChannelNameTextBox.Items.Add(c.Name);
+                    }
+                });
+            }
+        }
+
+        private async void EditServer_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var server = (sender as ComboBox).SelectedItem as ComboboxItem;
+
+            if (server != null)
+            {
+                var token = this.TokenTextBox.Text;
+
+                var channels = await DiscordApiClient.GetChannelsInServerAsync(server.Value.ToString(), token);
+
+                this.EditChannelNameTextBox.Items.Clear();
+                channels.ForEach(c =>
+                {
+                    if (c.Type == 0)
+                    {
+                        this.EditChannelNameTextBox.Items.Add(c.Name);
                     }
                 });
             }
