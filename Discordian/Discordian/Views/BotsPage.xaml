@@ -49,13 +49,11 @@
                     Tag="{Binding Id}"
                     Background="Transparent"
                     Click="ShowDeleteBotFlyout_Click"
-                    ToolTipService.ToolTip="Delete"
-                >
+                    ToolTipService.ToolTip="Delete">
                     <FontIcon
                         VerticalAlignment="Center"
                         FontSize="24"
-                        Glyph="&#xe74d;"
-                    />
+                        Glyph="&#xe74d;"/>
 
                     <FlyoutBase.AttachedFlyout>
                         <Flyout>
@@ -63,20 +61,15 @@
                                 <TextBlock Style="{ThemeResource BaseTextBlockStyle}" Text="Are you sure you want to delete this bot?" Margin="0,0,0,12" />
 
                                 <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="0.5*"></ColumnDefinition>
-                                        <ColumnDefinition Width="0.5*"></ColumnDefinition>
-                                    </Grid.ColumnDefinitions>
-
-                                    <Button Grid.Column="1" Tag="{Binding Id}" HorizontalAlignment="Center" Click="DeleteConfirmation_Click" Content="Yes"  VerticalAlignment="Center"/>
-                                    <Button Grid.Column="0" Content="Cancel" HorizontalAlignment="Center"  VerticalAlignment="Center"/>
+                                    <Button Tag="{Binding Id}" Content="Confirm" HorizontalAlignment="Center" Click="DeleteConfirmation_Click" VerticalAlignment="Center" Margin="10 0 0 0 "/>
                                 </Grid>
                             </StackPanel>
                         </Flyout>
                     </FlyoutBase.AttachedFlyout>
                 </Button>
 
-                <Button Loaded="StartStopButton_Loaded"
+                <Button
+                    Loaded="StartStopButton_Loaded"
                     Grid.Column="3"
                     Click="SendRequest_Click"
                     Tag="{Binding Id}"
@@ -195,11 +188,11 @@
             HorizontalAlignment="Center"
             VerticalAlignment="Center">
 
-            <muxc:TabView CanDrag="False" CanDragTabs="False" CanReorderTabs="False">
+            <muxc:TabView CanDrag="False" CanDragTabs="False" CanReorderTabs="False" IsAddTabButtonVisible="False" x:Name="BotCreationTabView">
                 <muxc:TabView.TabItems>
                     <muxc:TabViewItem x:Name="AccountSelectionTab" Header="Account" IsClosable="False">
                         <muxc:TabViewItem.IconSource>
-                            <muxc:BitmapIconSource UriSource="/Assets/TabViewIcons/cmd.png" ShowAsMonochrome="False" />
+                            <muxc:BitmapIconSource UriSource="/Assets/TabViewIcons/discord-logo.png" ShowAsMonochrome="False" />
                         </muxc:TabViewItem.IconSource>
                         <Grid>
                             <StackPanel x:Name="CredentialsStackPanel" Margin="0 20 0 0">
@@ -224,7 +217,7 @@
                     </muxc:TabViewItem>
                     <muxc:TabViewItem x:Name="BotDetailsTab" Header="Bot details" IsClosable="False" IsEnabled="False">
                         <muxc:TabViewItem.IconSource>
-                            <muxc:BitmapIconSource UriSource="/Assets/TabViewIcons/powershell.png" ShowAsMonochrome="False" />
+                            <muxc:BitmapIconSource UriSource="/Assets/TabViewIcons/robot-logo.png" ShowAsMonochrome="False" />
                         </muxc:TabViewItem.IconSource>
                         <Grid>
                             <StackPanel Margin="0 10 0 0">
@@ -244,31 +237,13 @@
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="50"/>
                                         </Grid.RowDefinitions>
-
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
 
-                                        <Button Grid.Column="0" Click="ChooseMessages_Click" HorizontalAlignment="Center" Margin="0,0,10,0">
-                                            <StackPanel>
-                                                <Grid>
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="*"></ColumnDefinition>
-                                                        <ColumnDefinition Width="Auto"></ColumnDefinition>
-                                                    </Grid.ColumnDefinitions>
-                                                    <Grid.RowDefinitions>
-                                                        <RowDefinition></RowDefinition>
-                                                    </Grid.RowDefinitions>
-                                                    <FontIcon
-                                                        FontSize="16"
-                                                        Glyph="&#xE16C;" Grid.Row="0" Grid.Column="1">
-                                                    </FontIcon>
-                                                    <TextBlock Grid.Row="0" Grid.Column="0">Choose messages</TextBlock>
-                                                </Grid>
-                                            </StackPanel>
-                                        </Button>
-                                        <TextBox Grid.Column="1" x:Name="ChosenFileName" VerticalAlignment="Center" HorizontalAlignment="Stretch" IsReadOnly="True"/>
+                                        <Button Click="ChooseMessages_Click" HorizontalAlignment="Center" Content="Choose messages" Margin="0,0,10,0"/>
+                                        <TextBox Grid.Column="1" x:Name="ChosenFileName" VerticalAlignment="Center" HorizontalAlignment="Stretch" IsReadOnly="true"/>
                                     </Grid>
                                 </StackPanel>
 
@@ -281,13 +256,13 @@
                                             <ColumnDefinition />
                                         </Grid.ColumnDefinitions>
 
-                                        <Button Grid.Column="1" Content="Cancel" x:Name="cancelBtn" Click="CancelButton_Click" Margin="10" Width="100"  HorizontalAlignment="Left"/>
+                                        <Button Grid.Column="1" Content="Back" x:Name="cancelBtn" Click="BackToAccount_Click" Margin="10" Width="100"  HorizontalAlignment="Left"/>
                                         <Button Grid.Column="1" Content="Add" x:Name="addBotBtn" Click="CreateBotButton_Click" Margin="10" Width="100"  HorizontalAlignment="Right"/>
                                     </Grid>
                                 </StackPanel>
                             </StackPanel>
 
-                            <muxc:ProgressRing x:Name="ProgressSpinner" IsActive="False" Width="120" Height="120"  />
+                            <muxc:ProgressRing x:Name="ProgressSpinner" IsActive="False" Width="120" Height="120" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
                         </Grid>
                     </muxc:TabViewItem>
                 </muxc:TabView.TabItems>
