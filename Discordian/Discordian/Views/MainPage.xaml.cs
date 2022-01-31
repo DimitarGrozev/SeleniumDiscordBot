@@ -79,13 +79,7 @@ namespace Discordian.Views
 
         private void OnCloseRequest(object sender, SystemNavigationCloseRequestedPreviewEventArgs e)
         {
-            var valueSet = new ValueSet();
-            valueSet.Add("request", "stopAll");
-
-            if (App.Connection != null)
-            {
-                 App.Connection.SendMessageAsync(valueSet).GetResults();
-            }
+            DiscordianBotConsoleClient.StopAllBots();
         }
     }
 }
