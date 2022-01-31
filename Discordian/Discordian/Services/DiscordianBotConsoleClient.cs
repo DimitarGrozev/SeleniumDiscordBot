@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Discordian.Core.Helpers;
+using Discordian.Core.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -30,6 +32,31 @@ namespace Discordian.Services
             }
 
             return token;
+        }
+
+        public static async Task StartBotAsync(Bot bot, Messages messages)
+        {
+            var valueSet = new ValueSet();
+            valueSet.Add("request", "start");
+            valueSet.Add("messages", await Json.StringifyAsync(messages));
+            valueSet.Add("bot", await Json.StringifyAsync(bot));
+
+            if (App.Connection != null)
+            {
+                var response = await App.Connection.SendMessageAsync(valueSet);
+            }
+        }
+
+        public static async Task StopBotAsync(Guid id)
+        {
+            var valueSet = new ValueSet();
+            valueSet.Add("request", "stop");
+            valueSet.Add("id", id.ToString());
+
+            if (App.Connection != null)
+            {
+                var response = await App.Connection.SendMessageAsync(valueSet);
+            }
         }
     }
 }

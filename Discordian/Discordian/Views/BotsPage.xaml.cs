@@ -8,6 +8,12 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.Foundation.Collections;
 using Windows.UI.Popups;
+using System.Text.RegularExpressions;
+using Microsoft.UI.Xaml.Controls;
+using Windows.UI.ViewManagement;
+using Discordian.Core.Models.XAML;
+using Windows.UI.Input.Preview.Injection;
+using Windows.System;
 
 namespace Discordian.Views
 {
@@ -61,40 +67,19 @@ namespace Discordian.Views
 
         private async void CreateBotButton_Click(object sender, RoutedEventArgs e)
         {
+            this.ProgressSpinner.IsActive = true;
+
             var id = this.BotIdTextBox.Text;
             var botName = this.BotNameTextBox.Text;
-            var serverName = this.ServerNameTextBox.Text;
-            var channelName = this.ChannelNameTextBox.Text;
+            var serverName = this.ServerNameTextBox.SelectedItem.ToString();
+            var channelName = this.ChannelNameTextBox.SelectedItem.ToString();
             var messageDelay = this.MessageDelayNumberBox.Text;
             var email = this.EmailTextBox.Text;
             var password = this.PasswordTextBox.Password;
-            var token = string.Empty;
+            var token = this.TokenTextBox.Text;
 
-            if (this.InformationIsPresent(id, botName, serverName, channelName, messageDelay, email, password))
+            if (this.ValidateBotDetails(id, botName, serverName, channelName, messageDelay))
             {
-
-                if (await DiscordianDbContext.AccountIsSavedAsync(email, password))
-                {
-                    token = await DiscordianDbContext.GetTokenForExistingAccountAsync(email, password);
-                }
-                else
-                {
-                    this.ProgressSpinner.IsActive = true;
-                    this.AddBotContentDialog.Opacity = 0.5;
-
-                    token = await DiscordianBotConsoleClient.GetTokenForNewAccountAsync(email, password);
-
-                    this.ProgressSpinner.IsActive = false;
-                    this.AddBotContentDialog.Opacity = 1;
-
-                    if (string.IsNullOrEmpty(token))
-                    {
-                        BotCreationValidationMessage.Visibility = Visibility.Visible;
-                        BotCreationValidationMessage.Text = "Wrong credentials! Try again!";
-                        return;
-                    }
-                }
-
                 try
                 {
                     var discordData = await DiscordApiClient.GetDiscordDataForBot(serverName, channelName, token);
@@ -113,18 +98,25 @@ namespace Discordian.Views
 
                 this.BotIdTextBox.Text = string.Empty;
                 this.BotNameTextBox.Text = string.Empty;
+                this.ServerNameTextBox.Items.Clear();
                 this.ServerNameTextBox.Text = string.Empty;
+                this.ChannelNameTextBox.Items.Clear();
                 this.ChannelNameTextBox.Text = string.Empty;
                 this.MessageDelayNumberBox.Text = "0";
                 this.ChosenFileName.Text = string.Empty;
                 this.EmailTextBox.Text = string.Empty;
                 this.PasswordTextBox.Password = string.Empty;
+                this.TokenTextBox.Text = string.Empty;
 
                 this.ProgressSpinner.IsActive = false;
                 this.AddBotContentDialog.Opacity = 1;
 
                 BotCreationValidationMessage.Visibility = Visibility.Collapsed;
                 BotCreationValidationMessage.Text = string.Empty;
+
+                this.AccountSelectionTab.IsSelected = true;
+                this.AccountSelectionTab.IsEnabled = true;
+                this.BotDetailsTab.IsEnabled = false;
 
                 ActiveBots[Guid.Parse(id)] = false;
 
@@ -141,20 +133,21 @@ namespace Discordian.Views
         {
             AddBotContentDialog.Hide();
 
-            var id = this.BotIdTextBox.Text;
-            await DiscordianDbContext.DeleteMessagesForBotAsync(id);
-
+            this.EmailTextBox.Text = string.Empty;
+            this.PasswordTextBox.Password = string.Empty;
             this.BotIdTextBox.Text = string.Empty;
             this.BotNameTextBox.Text = string.Empty;
             this.ServerNameTextBox.Text = string.Empty;
             this.ChannelNameTextBox.Text = string.Empty;
             this.MessageDelayNumberBox.Text = "0";
             this.ChosenFileName.Text = string.Empty;
-            this.EmailTextBox.Text = string.Empty;
-            this.PasswordTextBox.Password = string.Empty;
+            this.TokenTextBox.Text = string.Empty;
 
             BotCreationValidationMessage.Visibility = Visibility.Collapsed;
             BotCreationValidationMessage.Text = string.Empty;
+
+            BotAccountValidationMessage.Visibility = Visibility.Collapsed;
+            BotAccountValidationMessage.Text = string.Empty;
         }
 
         private async void SendRequest_Click(object sender, RoutedEventArgs e)
@@ -164,63 +157,25 @@ namespace Discordian.Views
 
             if (ActiveBots.GetValueOrDefault(id) == false)
             {
-                try
-                {
-                    var messages = await DiscordianDbContext.GetMessagesForBotAsync(id);
-                    var bot = await DiscordianDbContext.FindBotByIdAsync(id);
+                var messages = await DiscordianDbContext.GetMessagesForBotAsync(id);
+                var bot = await DiscordianDbContext.FindBotByIdAsync(id);
 
-                    var valueSet = new ValueSet();
-                    valueSet.Add("request", "start");
-                    valueSet.Add("messages", await Json.StringifyAsync(messages));
-                    valueSet.Add("bot", await Json.StringifyAsync(bot));
+                await DiscordianBotConsoleClient.StartBotAsync(bot, messages);
 
-                    if (App.Connection != null)
-                    {
-                        var response = await App.Connection.SendMessageAsync(valueSet);
-                    }
+                ActiveBots[id] = true;
 
-                    ActiveBots[id] = true;
-
-                    var fontIcon = new FontIcon();
-                    fontIcon.FontSize = 24;
-                    fontIcon.VerticalAlignment = VerticalAlignment.Center;
-                    fontIcon.Glyph = "\xE769";
-
-                    button.Content = fontIcon;
-                }
-                catch (ArgumentException ex)
-                {
-                    //TODO: Implement notification if bot fails to send data
-                }
+                this.SwitchToStopIcon(button);
             }
             else
             {
-                try
-                {
-                    var valueSet = new ValueSet();
-                    valueSet.Add("request", "stop");
-                    valueSet.Add("id", id.ToString());
+                await DiscordianBotConsoleClient.StopBotAsync(id);
 
-                    if (App.Connection != null)
-                    {
-                        var response = await App.Connection.SendMessageAsync(valueSet);
-                    }
+                ActiveBots[id] = false;
 
-                    ActiveBots[id] = false;
-
-                    var fontIcon = new FontIcon();
-                    fontIcon.FontSize = 24;
-                    fontIcon.VerticalAlignment = VerticalAlignment.Center;
-                    fontIcon.Glyph = "\xE768";
-
-                    button.Content = fontIcon;
-                }
-                catch (ArgumentException ex)
-                {
-                    //TODO: Implement notification if bot fails to send data
-                }
+                this.SwitchToStartIcon(button);
             }
         }
+
 
         private void ShowDeleteBotFlyout_Click(object sender, RoutedEventArgs e)
         {
@@ -263,24 +218,144 @@ namespace Discordian.Views
             }
         }
 
-        private bool InformationIsPresent(string id, string botName, string serverName, string channelName, string messageDelay, string email, string password)
-        {
-            return !string.IsNullOrEmpty(id) && !string.IsNullOrEmpty(serverName) && !string.IsNullOrEmpty(channelName) && !string.IsNullOrEmpty(messageDelay) && !string.IsNullOrEmpty(email) && !string.IsNullOrEmpty(password);
-        }
-
         private void StartStopButton_Loaded(object sender, RoutedEventArgs e)
         {
-            var id = Guid.Parse((sender as Button).Tag.ToString());
-
+            var button = sender as Button;
+            var id = Guid.Parse(button.Tag.ToString());
             if (ActiveBots[id])
             {
-                var fontIcon = new FontIcon();
-                fontIcon.FontSize = 24;
-                fontIcon.VerticalAlignment = VerticalAlignment.Center;
-                fontIcon.Glyph = "\xE769";
-
-                (sender as Button).Content = fontIcon;
+                this.SwitchToStopIcon(button);
             }
+        }
+
+        private void SwitchToStopIcon(Button button)
+        {
+            var fontIcon = new FontIcon();
+            fontIcon.FontSize = 24;
+            fontIcon.VerticalAlignment = VerticalAlignment.Center;
+            fontIcon.Glyph = "\xE769";
+
+            button.Content = fontIcon;
+        }
+
+        private void SwitchToStartIcon(Button button)
+        {
+            var fontIcon = new FontIcon();
+            fontIcon.FontSize = 24;
+            fontIcon.VerticalAlignment = VerticalAlignment.Center;
+            fontIcon.Glyph = "\xE768";
+
+            button.Content = fontIcon;
+        }
+
+        private async void ChooseAccount_Click(object sender, RoutedEventArgs e)
+        {
+            AccountChoiceLoader.IsActive = true;
+            BotAccountValidationMessage.Visibility = Visibility.Collapsed;
+            BotAccountValidationMessage.Text = string.Empty;
+
+            var token = string.Empty;
+            var email = this.EmailTextBox.Text;
+            var password = this.PasswordTextBox.Password;
+
+            if (this.ValidateCredentials(email, password))
+            {
+                if (await DiscordianDbContext.AccountIsSavedAsync(email, password))
+                {
+                    token = await DiscordianDbContext.GetTokenForExistingAccountAsync(email, password);
+                }
+                else
+                {
+
+                    token = await DiscordianBotConsoleClient.GetTokenForNewAccountAsync(email, password);
+
+                    if (string.IsNullOrEmpty(token))
+                    {
+                        AccountChoiceLoader.IsActive = false;
+                        BotAccountValidationMessage.Visibility = Visibility.Visible;
+                        BotAccountValidationMessage.Text = "Wrong credentials! Try again!";
+
+                        return;
+                    }
+                }
+
+                this.TokenTextBox.Text = token;
+
+                var servers = await DiscordApiClient.GetServersForUserAsync(token);
+                ServerNameTextBox.Items.Clear();
+                servers.ForEach(s => ServerNameTextBox.Items.Add(new ComboboxItem { Text = s.Name, Value = s.Id }));
+
+                this.BotDetailsTab.IsEnabled = true;
+                this.BotDetailsTab.IsSelected = true;
+                this.AccountSelectionTab.IsEnabled = false;
+
+                this.AccountChoiceLoader.IsActive = false;
+            }
+            else
+            {
+                AccountChoiceLoader.IsActive = false;
+                BotAccountValidationMessage.Visibility = Visibility.Visible;
+                BotAccountValidationMessage.Text = "Wrong credentials! Try again!";
+            }
+        }
+
+        private async void Server_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var server = (sender as ComboBox).SelectedItem as ComboboxItem;
+
+            if (server != null)
+            {
+                var token = this.TokenTextBox.Text;
+
+                var channels = await DiscordApiClient.GetChannelsInServerAsync(server.Value.ToString(), token);
+
+                ChannelNameTextBox.Items.Clear();
+                channels.ForEach(c =>
+                {
+                    if (c.Type == 0)
+                    {
+                        ChannelNameTextBox.Items.Add(c.Name);
+                    }
+                });
+            }
+        }
+
+        private async void BackToAccount_Click(object sender, RoutedEventArgs e)
+        {
+            await DiscordianDbContext.DeleteMessagesForBotAsync(this.BotIdTextBox.Text);
+
+            this.BotIdTextBox.Text = string.Empty;
+            this.BotNameTextBox.Text = string.Empty;
+            this.ServerNameTextBox.SelectedIndex = -1;
+            this.ServerNameTextBox.Text = string.Empty;
+            this.ChannelNameTextBox.SelectedIndex = -1;
+            this.ChannelNameTextBox.Text = string.Empty;
+            this.MessageDelayNumberBox.Text = "0";
+            this.ChosenFileName.Text = string.Empty;
+            this.TokenTextBox.Text = string.Empty;
+
+            this.AccountSelectionTab.IsEnabled = true;
+            this.AccountSelectionTab.IsSelected = true;
+            this.BotDetailsTab.IsEnabled = false;
+        }
+
+        private bool ValidateCredentials(string email, string password)
+        {
+            var isEmailValid = Regex.Match(email, "^[\\w.-]+@(?=[a-z\\d][^.]*\\.)[a-z\\d.-]*[^.]$").Success;
+            var isPasswordPresent = password.Length > 0;
+
+            return isPasswordPresent && isEmailValid;
+        }
+
+        private bool ValidateBotDetails(string id, string botName, string serverName, string channelName, string messageDelay)
+        {
+            var isIdValidGuid = Guid.TryParse(id, out Guid result);
+            var isBotNameValid = botName.Length <= 25;
+            var isServerNamePresent = !string.IsNullOrEmpty(serverName);
+            var isChannelNamePresent = !string.IsNullOrEmpty(channelName);
+            var isMessageDelayValid = double.TryParse(messageDelay, out double delay);
+
+            return isIdValidGuid && isBotNameValid && isServerNamePresent && isChannelNamePresent && isMessageDelayValid;
         }
     }
 }

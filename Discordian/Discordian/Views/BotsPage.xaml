@@ -31,7 +31,7 @@
                     Grid.Column="0"
                     VerticalAlignment="Center"
                     FontSize="24"
-                    Glyph="&#xE13D;"
+                    Glyph="&#xE99A;"
                 />
 
                 <StackPanel
@@ -49,13 +49,11 @@
                     Tag="{Binding Id}"
                     Background="Transparent"
                     Click="ShowDeleteBotFlyout_Click"
-                    ToolTipService.ToolTip="Delete"
-                >
+                    ToolTipService.ToolTip="Delete">
                     <FontIcon
                         VerticalAlignment="Center"
                         FontSize="24"
-                        Glyph="&#xe74d;"
-                    />
+                        Glyph="&#xe74d;"/>
 
                     <FlyoutBase.AttachedFlyout>
                         <Flyout>
@@ -63,20 +61,15 @@
                                 <TextBlock Style="{ThemeResource BaseTextBlockStyle}" Text="Are you sure you want to delete this bot?" Margin="0,0,0,12" />
 
                                 <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="0.5*"></ColumnDefinition>
-                                        <ColumnDefinition Width="0.5*"></ColumnDefinition>
-                                    </Grid.ColumnDefinitions>
-
-                                    <Button Grid.Column="1" Tag="{Binding Id}" HorizontalAlignment="Center" Click="DeleteConfirmation_Click" Content="Yes"  VerticalAlignment="Center"/>
-                                    <Button Grid.Column="0" Content="Cancel" HorizontalAlignment="Center"  VerticalAlignment="Center"/>
+                                    <Button Tag="{Binding Id}" Content="Confirm" HorizontalAlignment="Center" Click="DeleteConfirmation_Click" VerticalAlignment="Center" Margin="10 0 0 0 "/>
                                 </Grid>
                             </StackPanel>
                         </Flyout>
                     </FlyoutBase.AttachedFlyout>
                 </Button>
 
-                <Button Loaded="StartStopButton_Loaded"
+                <Button
+                    Loaded="StartStopButton_Loaded"
                     Grid.Column="3"
                     Click="SendRequest_Click"
                     Tag="{Binding Id}"
@@ -118,16 +111,16 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                
+
                 <TextBlock
                     Grid.Column="0"
                     x:Name="headerText"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Center"
                     Style="{StaticResource ListTitleStyle}"
-                    Text="{Binding}"
+                    Text="Your bots"
                 />
-                
+
                 <Button
                     x:Name="ShowBotCreationDialogButton"
                     Click="ShowBotCreationDialog"
@@ -144,7 +137,7 @@
                 </Button>
             </Grid>
         </DataTemplate>
-        
+
         <DataTemplate x:Key="MinimalListHeaderTemplate">
             <Grid Height="40">
                 <TextBlock
@@ -165,14 +158,14 @@
                         <!--641 is the default CompactModeThresholdWidth in NavigationView -->
                         <AdaptiveTrigger MinWindowWidth="641" />
                     </VisualState.StateTriggers>
-                    
+
                     <VisualState.Setters>
                         <Setter Target="ListDetailsViewControl.ListHeaderTemplate" Value="{StaticResource ListHeaderTemplate}" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
-        
+
         <controls:ListDetailsView
             x:Name="ListDetailsViewControl"
             x:Uid="Bots"
@@ -193,67 +186,87 @@
             Title="Add bot"
             Width="Auto"
             HorizontalAlignment="Center"
-            VerticalAlignment="Center"
-        >
-            <Grid>
-                <StackPanel>
-                    <StackPanel x:Name="CredentialsStackPanel">
-                        <ComboBox x:Name="EmailTextBox" IsEditable="True" ItemsSource="{x:Bind Mode=TwoWay, Path=Emails}" Header="Email" PlaceholderText="Discord email..." Width="289" SelectionChanged="EmailTextBox_SelectionChanged">
-                            <ComboBoxItem IsEnabled="False">Choose an existing or enter new</ComboBoxItem>
-                        </ComboBox>
-                        
-                        <PasswordBox x:Name="PasswordTextBox" Margin="0,0,0,10" Header="Password" PlaceholderText="Discord password..."/>
-                    </StackPanel>
-                    
-                    <TextBox x:Name="BotIdTextBox" Visibility="Collapsed"/>
-                    
-                    <TextBox Margin="0,0,0,10" x:Name="BotNameTextBox" Header="Bot name" PlaceholderText="Your bot name..."/>
-                    
-                    <TextBox Margin="0,0,0,10" x:Name="ServerNameTextBox" Header="Server name" PlaceholderText="Server you want to target..."/>
-                    
-                    <TextBox Margin="0,0,0,10" x:Name="ChannelNameTextBox" Header="Channel name" PlaceholderText="Channel you want to target..."/>
-                    
-                    <muxc:NumberBox Margin="0,0,0,10" x:Name="MessageDelayNumberBox" Header="Message delay:" PlaceholderText="Delay in seconds" SpinButtonPlacementMode="Inline" Value="0" SmallChange="5" LargeChange="10"/>
-                    
-                    <StackPanel>
+            VerticalAlignment="Center">
+
+            <muxc:TabView CanDrag="False" CanDragTabs="False" CanReorderTabs="False" IsAddTabButtonVisible="False" x:Name="BotCreationTabView">
+                <muxc:TabView.TabItems>
+                    <muxc:TabViewItem x:Name="AccountSelectionTab" Header="Account" IsClosable="False">
+                        <muxc:TabViewItem.IconSource>
+                            <muxc:BitmapIconSource UriSource="/Assets/TabViewIcons/discord-logo.png" ShowAsMonochrome="False" />
+                        </muxc:TabViewItem.IconSource>
                         <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="50"/>
-                            </Grid.RowDefinitions>
-                            
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            
-                            <Button Click="ChooseMessages_Click" HorizontalAlignment="Center" Content="Choose messages" Margin="0,0,10,0"/>
-                            
-                            <TextBox Grid.Column="1" x:Name="ChosenFileName" VerticalAlignment="Center" Width="150" IsReadOnly="True"/>
+                            <StackPanel x:Name="CredentialsStackPanel" Margin="0 20 0 0">
+                                <ComboBox x:Name="EmailTextBox" IsEditable="True" ItemsSource="{x:Bind Mode=TwoWay, Path=Emails}" Header="Email" PlaceholderText="Discord email..." HorizontalAlignment="Stretch" SelectionChanged="EmailTextBox_SelectionChanged" Margin="0,0,0,10">
+                                    <ComboBoxItem IsEnabled="False">Choose an existing or enter new</ComboBoxItem>
+                                </ComboBox>
+                                <PasswordBox x:Name="PasswordTextBox" Margin="0,0,0,10" Header="Password" PlaceholderText="Discord password..." HorizontalAlignment="Stretch"/>
+                                <TextBlock x:Name="BotAccountValidationMessage" HorizontalAlignment="Center" Margin="10" Visibility="Collapsed" Foreground="Red"></TextBlock>
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition></ColumnDefinition>
+                                        <ColumnDefinition></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+                                    <Button Grid.Column="1" Content="Cancel" x:Name="cancelAccountChoiceBtn" Click="CancelButton_Click" Margin="10" Width="100"  HorizontalAlignment="Left"/>
+                                    <Button Grid.Column="1" Content="Next" x:Name="chooseAccount" Click="ChooseAccount_Click" Margin="10" Width="100"  HorizontalAlignment="Right"/>
+                                </Grid>
+                            </StackPanel>
+
+                            <muxc:ProgressRing x:Name="AccountChoiceLoader" IsActive="False" Width="120" Height="120"  VerticalAlignment="Center" HorizontalAlignment="Center"/>
                         </Grid>
-                    </StackPanel>
-                    
-                    <TextBox x:Name="BotCreationValidationMessage" HorizontalAlignment="Center" BorderBrush="Transparent" Margin="10" Visibility="Collapsed" Foreground="Red" IsReadOnly="true"></TextBox>
-                    
-                    <StackPanel Margin="20,10,0,0">
+                    </muxc:TabViewItem>
+                    <muxc:TabViewItem x:Name="BotDetailsTab" Header="Bot details" IsClosable="False" IsEnabled="False">
+                        <muxc:TabViewItem.IconSource>
+                            <muxc:BitmapIconSource UriSource="/Assets/TabViewIcons/robot-logo.png" ShowAsMonochrome="False" />
+                        </muxc:TabViewItem.IconSource>
                         <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition/>
-                            </Grid.RowDefinitions>
-                            
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            
-                            <Button Grid.Row="0" Grid.Column="0" Content="Cancel" x:Name="cancelBtn" Click="CancelButton_Click" Margin="10" Width="100"  HorizontalAlignment="Center"/>
-                            
-                            <Button Grid.Row="0" Grid.Column="1" Content="Add" x:Name="addBotBtn" Click="CreateBotButton_Click" Margin="10" Width="100"  HorizontalAlignment="Center"/>
+                            <StackPanel Margin="0 10 0 0">
+                                <TextBox x:Name="BotIdTextBox" Visibility="Collapsed"/>
+                                <TextBox x:Name="TokenTextBox" Visibility="Collapsed"/>
+
+                                <TextBox Margin="0,0,0,10" x:Name="BotNameTextBox" Header="Bot name" PlaceholderText="Your bot name..." MaxLength="25" HorizontalAlignment="Stretch"/>
+
+                                <ComboBox Margin="0,0,0,10" x:Name="ServerNameTextBox" Header="Server name" PlaceholderText="Server you want to target..." HorizontalAlignment="Stretch" SelectionChanged="Server_SelectionChanged"/>
+
+                                <ComboBox Margin="0,0,0,10" x:Name="ChannelNameTextBox" Header="Channel name" PlaceholderText="Channel you want to target..." HorizontalAlignment="Stretch"/>
+
+                                <muxc:NumberBox Margin="0,0,0,10" x:Name="MessageDelayNumberBox" Header="Message delay:" PlaceholderText="Delay in seconds" SpinButtonPlacementMode="Inline" Value="0" Minimum="0" SmallChange="5" LargeChange="10"/>
+
+                                <StackPanel>
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="50"/>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <Button Click="ChooseMessages_Click" HorizontalAlignment="Center" Content="Choose messages" Margin="0,0,10,0"/>
+                                        <TextBox Grid.Column="1" x:Name="ChosenFileName" VerticalAlignment="Center" HorizontalAlignment="Stretch" IsReadOnly="true"/>
+                                    </Grid>
+                                </StackPanel>
+
+                                <TextBlock x:Name="BotCreationValidationMessage" HorizontalAlignment="Center" Margin="10" Visibility="Collapsed" Foreground="Red" ></TextBlock>
+
+                                <StackPanel Margin="20,10,0,0">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition />
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+
+                                        <Button Grid.Column="1" Content="Back" x:Name="cancelBtn" Click="BackToAccount_Click" Margin="10" Width="100"  HorizontalAlignment="Left"/>
+                                        <Button Grid.Column="1" Content="Add" x:Name="addBotBtn" Click="CreateBotButton_Click" Margin="10" Width="100"  HorizontalAlignment="Right"/>
+                                    </Grid>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <muxc:ProgressRing x:Name="ProgressSpinner" IsActive="False" Width="120" Height="120" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
                         </Grid>
-                    </StackPanel>
-                </StackPanel>
-                
-                <muxc:ProgressRing x:Name="ProgressSpinner" IsActive="False" Width="120" Height="120"  />
-            </Grid>
+                    </muxc:TabViewItem>
+                </muxc:TabView.TabItems>
+            </muxc:TabView>
         </ContentDialog>
     </Grid>
 </Page>
