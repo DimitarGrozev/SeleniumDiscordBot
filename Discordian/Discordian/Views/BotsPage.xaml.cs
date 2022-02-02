@@ -3,19 +3,12 @@ using System.Linq;
 using System.Collections.Generic;
 using Discordian.Services;
 using Discordian.ViewModels;
-using Discordian.Core.Helpers;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.Foundation.Collections;
 using Windows.UI.Popups;
 using System.Text.RegularExpressions;
-using Microsoft.UI.Xaml.Controls;
-using Windows.UI.ViewManagement;
 using Discordian.Core.Models.XAML;
-using Windows.UI.Input.Preview.Injection;
-using Windows.System;
 using Discordian.Core.Models;
-using System.Threading.Tasks;
 using Windows.UI.Xaml.Media;
 
 namespace Discordian.Views
@@ -94,6 +87,8 @@ namespace Discordian.Views
                 }
                 catch (ArgumentException ex)
                 {
+                    this.ProgressSpinner.IsActive = false;
+
                     BotCreationValidationMessage.Visibility = Visibility.Visible;
                     BotCreationValidationMessage.Text = ex.Message;
                     return;

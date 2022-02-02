@@ -220,6 +220,8 @@ namespace Discordian.Services
 
         public static async Task<Bot> CreateBotAsync(string botName, string serverName, string channelName, int messageDelay, string email, string password, string token, string messageFileName, DiscordData discordData)
         {
+            await ValidateBotNameUniqueness(botName);
+
             var bot = new Bot();
             var credentials = new Account { Email = email, Password = password, Token = token };
 
@@ -248,6 +250,16 @@ namespace Discordian.Services
             await SaveMessagesForBot(bot.Id.ToString());
 
             return bot;
+        }
+
+        private static async Task ValidateBotNameUniqueness(string botName)
+        {
+            var bots = await GetBotListAsync();
+
+            if (bots.Any(b => b.Name == botName))
+            {
+                throw new ArgumentException("Bot with such a name alreay exists!");
+            }
         }
 
         private static async Task SaveMessagesForBot(string id)
