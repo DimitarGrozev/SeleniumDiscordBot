@@ -6,6 +6,8 @@ using Discordian.Services;
 using Discordian.Utilities;
 using Discordian.ViewModels;
 using Windows.ApplicationModel;
+using Windows.Foundation.Collections;
+using Windows.UI.Core.Preview;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -20,6 +22,7 @@ namespace Discordian.Views
         {
             InitializeComponent();
             this.Loaded += MainPage_Loaded;
+            SystemNavigationManagerPreview.GetForCurrentView().CloseRequested += this.OnCloseRequest;
         }
 
         private async void MainPage_Loaded(object sender, RoutedEventArgs e)
@@ -72,6 +75,11 @@ namespace Discordian.Views
 
             ProgressSpinnerForMessagesPerBot.IsActive = false;
             ProgressSpinnerForMentionsPerBot.IsActive = false;
+        }
+
+        private void OnCloseRequest(object sender, SystemNavigationCloseRequestedPreviewEventArgs e)
+        {
+            DiscordianBotConsoleClient.StopAllBots();
         }
     }
 }
