@@ -103,7 +103,7 @@ namespace Discordian.BotLauncher
                 }
                 else
                 {
-					finalizedWord = finalizedWord.Replace(emoji, " :grinning: ");
+					finalizedWord = finalizedWord.Replace(emoji, ":grinning:");
 				}
 			}
 
