@@ -215,24 +215,26 @@ namespace Discordian.Services
         {
             var statistics = new List<Data>();
 
-            var messagesPerDay = new Dictionary<DateTime, Data>
+            var messagesPerDay = new Dictionary<DayOfWeek, Data>
             {
-                {DateTime.Today, new Data() },
-                {DateTime.Today.AddDays(-1), new Data()},
-                {DateTime.Today.AddDays(-2), new Data() },
-                {DateTime.Today.AddDays(-3), new Data() },
-                {DateTime.Today.AddDays(-4), new Data()},
-                {DateTime.Today.AddDays(-5), new Data()},
-                {DateTime.Today.AddDays(-6), new Data()},
+                {DayOfWeek.Sunday, new Data()},
+                {DayOfWeek.Monday, new Data()},
+                {DayOfWeek.Tuesday, new Data()},
+                {DayOfWeek.Wednesday, new Data()},
+                {DayOfWeek.Thursday, new Data()},
+                {DayOfWeek.Friday, new Data()},
+                {DayOfWeek.Saturday, new Data()},
             };
 
             foreach (var messageWrapper in result.Messages)
             {
                 foreach (var message in messageWrapper)
                 {
-                    if (messagesPerDay.ContainsKey(message.Timestamp.Date))
+                    var messageDayOfWeek = message.Timestamp.DayOfWeek;
+
+                    if (messagesPerDay.ContainsKey(messageDayOfWeek))
                     {
-                        messagesPerDay[message.Timestamp.Date].Value++;
+                        messagesPerDay[messageDayOfWeek].Value++;
                     }
                 }
             }

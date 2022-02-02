@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Discordian.Core.Models;
 using Discordian.Core.Models.Charts;
@@ -22,12 +23,14 @@ namespace Discordian.Views
                     ProgressSpinnerForWeeklyMessages.IsActive = true;
                     var statistics = new List<Data>();
 
-                    new Task( async () =>
+                    var task = new Task(async () =>
                     {
-                       statistics = await DiscordApiClient.GetBotMessageCountForLastSevenDaysAsync(bot.DiscordData, bot.Credentials.Token);
-                    }).Start();
+                        this.ChartContext = await DiscordApiClient.GetBotMessageCountForLastSevenDaysAsync(bot.DiscordData, bot.Credentials.Token);
+                    });
 
-                    this.ChartContext = statistics;
+                    task.Start();
+                    Thread.Sleep(2000);
+
                     ProgressSpinnerForWeeklyMessages.IsActive = false;
                 }
 
@@ -38,13 +41,7 @@ namespace Discordian.Views
 
         public static readonly DependencyProperty ListMenuItemProperty = DependencyProperty.Register("ListMenuItem", typeof(Bot), typeof(BotsDetailControl), new PropertyMetadata(null, OnListMenuItemPropertyChanged));
 
-        public List<Data> ChartContext
-        {
-            get { return GetValue(ChartContextProperty) as List<Data>; }
-            set { SetValue(ChartContextProperty, value); }
-        }
-
-        public static readonly DependencyProperty ChartContextProperty = DependencyProperty.Register("ChartContext", typeof(List<Data>), typeof(BotsDetailControl), new PropertyMetadata(null, OnListMenuItemPropertyChanged));
+        public List<Data> ChartContext { get; private set; }
 
         public BotsDetailControl()
         {
