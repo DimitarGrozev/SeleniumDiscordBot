@@ -39,8 +39,8 @@
                     Grid.Column="1"
                     Margin="{StaticResource SmallLeftMargin}"
                     VerticalAlignment="Center"
-                    HorizontalAlignment="Stretch"
-                >
+                    HorizontalAlignment="Stretch">
+                    
                     <TextBlock HorizontalAlignment="Stretch" Style="{ThemeResource ListTitleStyle}" Text="{x:Bind Name}"/>
                 </StackPanel>
 
@@ -99,7 +99,7 @@
 
         <DataTemplate x:Key="DetailsTemplate">
             <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-                <views:BotsDetailControl ListMenuItem="{Binding}" />
+                <views:BotsDetailControl ListMenuItem="{Binding}"/>
             </Grid>
         </DataTemplate>
 

@@ -16,8 +16,8 @@ namespace Discordian.Views
     public sealed partial class BotsPage : Page
     {
         public List<string> Emails { get; set; }
-
         public BotsViewModel ViewModel { get; } = new BotsViewModel();
+
         public static Dictionary<Guid, bool> ActiveBots = new Dictionary<Guid, bool>();
 
         public BotsPage()

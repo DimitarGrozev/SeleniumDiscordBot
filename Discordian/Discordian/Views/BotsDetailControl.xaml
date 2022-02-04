@@ -9,7 +9,7 @@
     mc:Ignorable="d"
     d:DesignHeight="600"
     d:DesignWidth="1200">
-    
+
     <ScrollViewer
         Name="ForegroundElement"
         Padding="{StaticResource DetailPageMargin}"
@@ -19,36 +19,63 @@
         IsTabStop="True">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition></RowDefinition>
-                <RowDefinition Height="0"></RowDefinition>
+                <RowDefinition Height="0.8*"></RowDefinition>
                 <RowDefinition></RowDefinition>
             </Grid.RowDefinitions>
-            <StackPanel HorizontalAlignment="Left" Grid.Row="0">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
-                    <TextBlock Style="{StaticResource DetailSubTitleStyle}" Text="Bot name:" />
-                    <TextBlock
-                    Margin="{StaticResource SmallLeftMargin}"
-                    VerticalAlignment="Center"
-                    Text="{x:Bind ListMenuItem.Name, Mode=OneWay}"
-                    Style="{ThemeResource DetailSubTitleStyle}" />
-                </StackPanel>
-                <StackPanel Name="block" Padding="0,15,0,0">
-                    <TextBlock Style="{StaticResource DetailSubTitleStyle}" Text="Server:" />
-                    <TextBlock Style="{StaticResource DetailBodyBaseMediumStyle}" Text="{x:Bind ListMenuItem.Server.Name, Mode=OneWay}" />
-                    <TextBlock
-                    Margin="{StaticResource SmallTopMargin}"
-                    Style="{StaticResource DetailSubTitleStyle}"
-                    Text="Channel:" />
-                    <TextBlock Style="{StaticResource DetailBodyBaseMediumStyle}" Text="{x:Bind ListMenuItem.Server.Channel, Mode=OneWay}" />
-                    <TextBlock Style="{StaticResource DetailSubTitleStyle}" Text="Delay in seconds:" />
-                    <TextBlock Style="{StaticResource DetailBodyBaseMediumStyle}" Text="{x:Bind ListMenuItem.MessageDelay, Mode=OneWay}" />
-                </StackPanel>
-            </StackPanel>
-            
-            <muxc:ProgressRing x:Name="ProgressSpinnerForWeeklyMessages" IsActive="False" Width="120" Height="120" Grid.Row="1" />
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+            </Grid.ColumnDefinitions>
 
-            <TextBlock Text="Weekly messages chart" FontSize="20" HorizontalAlignment="Center"  Grid.Row="2" Margin="0 15 0 0"></TextBlock>
-            <telerik:RadCartesianChart  x:Name="barSeries" Grid.Row="2" PaletteName="DefaultLight" Margin="30" EmptyContent="" DataContext="{x:Bind ChartContext}">
+            <StackPanel HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0" BorderThickness="2">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="60"></RowDefinition>
+                        <RowDefinition Height="60"></RowDefinition>
+                        <RowDefinition Height="60"></RowDefinition>
+                        <RowDefinition Height="60"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition></ColumnDefinition>
+                        <ColumnDefinition></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Horizontal" Grid.Row="0">
+                        <TextBlock Style="{StaticResource DetailSubTitleStyle}" Text="Bot name:" VerticalAlignment="Center"/>
+                        <TextBlock
+                        Margin="{StaticResource SmallLeftMargin}"
+                        VerticalAlignment="Center"
+                        Text="{x:Bind ListMenuItem.Name, Mode=OneWay}"
+                        Style="{ThemeResource DetailSubTitleStyle}" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Grid.Row="1" VerticalAlignment="Center">
+                        <TextBlock
+                            Style="{StaticResource DetailSubTitleStyle}"
+                            Margin="{StaticResource SmallRightMargin}"
+                            Text="Server:" />
+                        <TextBlock Style="{StaticResource DetailSubTitleStyle}" Text="{x:Bind ListMenuItem.Server.Name, Mode=OneWay}" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Grid.Row="2" VerticalAlignment="Center">
+                        <TextBlock
+                        Margin="{StaticResource SmallRightMargin}"
+                        Style="{StaticResource DetailSubTitleStyle}"
+                        Text="Channel:" />
+                        <TextBlock Style="{StaticResource DetailSubTitleStyle}" Text="{x:Bind ListMenuItem.Server.Channel, Mode=OneWay}" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Grid.Row="3" VerticalAlignment="Center">
+                        <TextBlock
+                            Style="{StaticResource DetailSubTitleStyle}"
+                            Text="Delay in seconds:"
+                            Margin="{StaticResource SmallRightMargin}"
+                            />
+                        <TextBlock Style="{StaticResource DetailSubTitleStyle}" Text="{x:Bind Mode=OneWay, Path=ListMenuItem.MessageDelay}" />
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+
+            <muxc:ProgressRing x:Name="ProgressSpinnerForWeeklyMessages" IsActive="False" Width="120" Height="120" Grid.Row="2" Grid.ColumnSpan="2"/>
+
+            <TextBlock Text="Weekly messages chart" FontSize="20" HorizontalAlignment="Center"  Grid.Row="2" Margin="0 15 0 0" Grid.ColumnSpan="2"></TextBlock>
+            <telerik:RadCartesianChart  x:Name="barSeries" Grid.Row="2" PaletteName="DefaultLight" Margin="30" EmptyContent="" Grid.ColumnSpan="2">
                 <telerik:RadCartesianChart.VerticalAxis>
                     <telerik:LinearAxis/>
                 </telerik:RadCartesianChart.VerticalAxis>

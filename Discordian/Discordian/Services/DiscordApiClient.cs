@@ -51,11 +51,10 @@ namespace Discordian.Services
 
         public static async Task<List<Data>> GetBotMessageCountForLastSevenDaysAsync(DiscordData discordData, string token)
         {
-            var before = Snowflake.FromDate(new DateTimeOffset(DateTime.Today)).ToString();
-            var after = Snowflake.FromDate(new DateTimeOffset(DateTime.Today.AddDays(-7))).ToString();
+            var after = Snowflake.FromDate(new DateTimeOffset(DateTime.Today.AddDays(-8))).ToString();
 
             var url = new UrlBuilder()
-              .SetPath($"guilds/{discordData.ServerId}/messages/search?author_id={discordData.UserId}&channel_id={discordData.ChannelId}&min_id={after}&max_id={before}")
+              .SetPath($"guilds/{discordData.ServerId}/messages/search?author_id={discordData.UserId}&channel_id={discordData.ChannelId}&min_id={after}")
               .Build();
 
             var response = await GetResponseAsync(url, token);
@@ -217,13 +216,13 @@ namespace Discordian.Services
 
             var messagesPerDay = new Dictionary<DateTime, Data>
             {
-                {DateTime.Today, new Data() },
-                {DateTime.Today.AddDays(-1), new Data()},
-                {DateTime.Today.AddDays(-2), new Data() },
-                {DateTime.Today.AddDays(-3), new Data() },
-                {DateTime.Today.AddDays(-4), new Data()},
-                {DateTime.Today.AddDays(-5), new Data()},
-                {DateTime.Today.AddDays(-6), new Data()},
+                {DateTime.Today.AddDays(-6), new Data{Category = DateTime.Today.AddDays(-6).DayOfWeek.ToString()} },
+                {DateTime.Today.AddDays(-5), new Data{Category = DateTime.Today.AddDays(-5).DayOfWeek.ToString()} },
+                {DateTime.Today.AddDays(-4), new Data{Category = DateTime.Today.AddDays(-4).DayOfWeek.ToString()} },
+                {DateTime.Today.AddDays(-3), new Data{Category = DateTime.Today.AddDays(-3).DayOfWeek.ToString()} },
+                {DateTime.Today.AddDays(-2), new Data{Category = DateTime.Today.AddDays(-2).DayOfWeek.ToString()} },
+                {DateTime.Today.AddDays(-1), new Data{Category = DateTime.Today.AddDays(-1).DayOfWeek.ToString()} },
+                {DateTime.Today, new Data{ Category = DateTime.Today.DayOfWeek.ToString()} },
             };
 
             foreach (var messageWrapper in result.Messages)
@@ -238,6 +237,8 @@ namespace Discordian.Services
             }
 
             statistics.AddRange(messagesPerDay.Values);
+
+            statistics.ForEach(s => s.LabelProperty = s.Value.ToString());
 
             return statistics;
         }
