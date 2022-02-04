@@ -5,6 +5,7 @@ using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Edge;
 using OpenQA.Selenium.Interactions;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -55,13 +56,15 @@ namespace Discordian.BotLauncher
 			while(!ct.IsCancellationRequested)
             {
 				var message = messages.Sentences.OrderBy(m => Guid.NewGuid()).FirstOrDefault();
-				var sanitizedMessage = Regex.Replace(message, @"\p{Cs}", " :D ");
+
+				var sanitizedMessage = string.Join(' ', message.Split(' ').Select(TryReplaceEmoji));
+
 				(new Actions(driver)).SendKeys(sanitizedMessage + " " + OpenQA.Selenium.Keys.Enter).Perform();
 
-				Logger.LogMessage(botData.Server.Name, sanitizedMessage);
+                Logger.LogMessage(botData.Server.Name, sanitizedMessage);
 
-				//Delay between messages
-				var stopwatch = new Stopwatch();
+                //Delay between messages
+                var stopwatch = new Stopwatch();
 				stopwatch.Start();
 
 				while (true)
@@ -78,6 +81,33 @@ namespace Discordian.BotLauncher
 			driver.Quit();
 			driver.Dispose();
 			driver = null;
+		}
+
+		private static string TryReplaceEmoji(string word)
+		{
+			var emojisInWord = new List<string>();
+			var result = Regex.Matches(word, @"(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])");
+			var finalizedWord = word;
+
+			foreach (Match match in result)
+			{
+				var emoji = word.Substring(match.Index, match.Length);
+				emojisInWord.Add(emoji);
+			}
+
+			foreach (var emoji in emojisInWord.Distinct())
+			{
+				if (EmojiDictionary.Emojis.ContainsKey(emoji))
+                {
+					finalizedWord = finalizedWord.Replace(emoji, EmojiDictionary.Emojis[emoji]);
+                }
+                else
+                {
+					finalizedWord = finalizedWord.Replace(emoji, ":grinning:");
+				}
+			}
+
+			return finalizedWord;
 		}
 
 		public string GetToken()
