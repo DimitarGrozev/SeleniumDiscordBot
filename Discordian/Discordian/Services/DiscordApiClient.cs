@@ -238,7 +238,7 @@ namespace Discordian.Services
 
             statistics.AddRange(messagesPerDay.Values);
 
-            statistics.ForEach(s => s.LabelProperty = s.Value.ToString());
+            statistics.ForEach(s => s.LabelProperty = s.Value == 0 ? "" : s.Value.ToString());
 
             return statistics;
         }

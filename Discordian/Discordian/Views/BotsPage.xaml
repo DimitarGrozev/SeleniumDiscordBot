@@ -22,7 +22,7 @@
             <Grid Height="60">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="150" />
+                    <ColumnDefinition Width="140" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
@@ -54,7 +54,7 @@
                         x:Name="EditIcon"
                         VerticalAlignment="Center"
                         FontSize="24"
-                        Glyph="&#xED63;"/>
+                        Glyph="&#xE70F;"/>
                 </Button>
 
                 <Button
