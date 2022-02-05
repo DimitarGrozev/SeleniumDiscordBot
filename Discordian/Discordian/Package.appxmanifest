@@ -66,10 +66,9 @@
     <rescap:Capability Name="runFullTrust"/>
     <rescap:Capability Name="broadFileSystemAccess" />
     <rescap:Capability Name="appDiagnostics" />
-    <uap:Capability Name="picturesLibrary"/>
-    <uap:Capability Name="videosLibrary"/>
     <Capability Name="internetClient" />
     <rescap:Capability Name="confirmAppClose" />
+    <Capability Name="internetClientServer"/>
   </Capabilities>
 
   <genTemplate:Metadata>
