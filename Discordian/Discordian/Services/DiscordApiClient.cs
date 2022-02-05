@@ -1,5 +1,6 @@
 ﻿using Discordian.Core.Helpers;
 using Discordian.Core.Models;
+using Discordian.Core.Models.Charts;
 using Discordian.Core.Models.Discord;
 using Discordian.Utilities;
 using Polly;
@@ -48,6 +49,23 @@ namespace Discordian.Services
                   (_, _, _, _) => Task.CompletedTask
         );
 
+        public static async Task<List<Data>> GetBotMessageCountForLastSevenDaysAsync(DiscordData discordData, string token)
+        {
+            var after = Snowflake.FromDate(new DateTimeOffset(DateTime.Today.AddDays(-8))).ToString();
+
+            var url = new UrlBuilder()
+              .SetPath($"guilds/{discordData.ServerId}/messages/search?author_id={discordData.UserId}&channel_id={discordData.ChannelId}&min_id={after}")
+              .Build();
+
+            var response = await GetResponseAsync(url, token);
+            var content = await response.Content.ReadAsStringAsync();
+            var result = await Json.ToObjectAsync<ServerSearchResult>(content);
+
+            var statistics = GroupStatistics(result);
+
+            return statistics;
+        }
+
         public static async Task<bool> ServerExistsAsync(string serverName, string token)
         {
             var serverExists = true;
@@ -56,7 +74,7 @@ namespace Discordian.Services
             {
                 await GetServerIdAsync(serverName, token);
             }
-            catch(ArgumentException ex)
+            catch (ArgumentException ex)
             {
                 serverExists = false;
             }
@@ -190,6 +208,39 @@ namespace Discordian.Services
 
                 return response;
             }
+        }
+
+        private static List<Data> GroupStatistics(ServerSearchResult result)
+        {
+            var statistics = new List<Data>();
+
+            var messagesPerDay = new Dictionary<DateTime, Data>
+            {
+                {DateTime.Today.AddDays(-6), new Data{Category = DateTime.Today.AddDays(-6).DayOfWeek.ToString()} },
+                {DateTime.Today.AddDays(-5), new Data{Category = DateTime.Today.AddDays(-5).DayOfWeek.ToString()} },
+                {DateTime.Today.AddDays(-4), new Data{Category = DateTime.Today.AddDays(-4).DayOfWeek.ToString()} },
+                {DateTime.Today.AddDays(-3), new Data{Category = DateTime.Today.AddDays(-3).DayOfWeek.ToString()} },
+                {DateTime.Today.AddDays(-2), new Data{Category = DateTime.Today.AddDays(-2).DayOfWeek.ToString()} },
+                {DateTime.Today.AddDays(-1), new Data{Category = DateTime.Today.AddDays(-1).DayOfWeek.ToString()} },
+                {DateTime.Today, new Data{ Category = DateTime.Today.DayOfWeek.ToString()} },
+            };
+
+            foreach (var messageWrapper in result.Messages)
+            {
+                foreach (var message in messageWrapper)
+                {
+                    if (messagesPerDay.ContainsKey(message.Timestamp.Date))
+                    {
+                        messagesPerDay[message.Timestamp.Date].Value++;
+                    }
+                }
+            }
+
+            statistics.AddRange(messagesPerDay.Values);
+
+            statistics.ForEach(s => s.LabelProperty = s.Value == 0 ? "" : s.Value.ToString());
+
+            return statistics;
         }
     }
 }

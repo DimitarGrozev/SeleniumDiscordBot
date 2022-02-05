@@ -22,7 +22,7 @@
             <Grid Height="60">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="150" />
+                    <ColumnDefinition Width="140" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
@@ -39,8 +39,8 @@
                     Grid.Column="1"
                     Margin="{StaticResource SmallLeftMargin}"
                     VerticalAlignment="Center"
-                    HorizontalAlignment="Stretch"
-                >
+                    HorizontalAlignment="Stretch">
+                    
                     <TextBlock HorizontalAlignment="Stretch" Style="{ThemeResource ListTitleStyle}" Text="{x:Bind Name}"/>
                 </StackPanel>
 
@@ -54,7 +54,7 @@
                         x:Name="EditIcon"
                         VerticalAlignment="Center"
                         FontSize="24"
-                        Glyph="&#xED63;"/>
+                        Glyph="&#xE70F;"/>
                 </Button>
 
                 <Button
@@ -99,7 +99,7 @@
 
         <DataTemplate x:Key="DetailsTemplate">
             <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-                <views:BotsDetailControl ListMenuItem="{Binding}" />
+                <views:BotsDetailControl ListMenuItem="{Binding}"/>
             </Grid>
         </DataTemplate>
 

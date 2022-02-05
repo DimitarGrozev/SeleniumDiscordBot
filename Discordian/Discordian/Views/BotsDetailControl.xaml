@@ -4,9 +4,12 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:telerik="using:Telerik.UI.Xaml.Controls.Chart"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     mc:Ignorable="d"
-    d:DesignHeight="300"
-    d:DesignWidth="400">
+    d:DesignHeight="600"
+    d:DesignWidth="1200">
+
     <ScrollViewer
         Name="ForegroundElement"
         Padding="{StaticResource DetailPageMargin}"
@@ -14,26 +17,101 @@
         Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
         VerticalScrollMode="Enabled"
         IsTabStop="True">
-        <StackPanel HorizontalAlignment="Left">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
-                <TextBlock Style="{StaticResource DetailSubTitleStyle}" Text="Bot name:" />
-                <TextBlock
-                    Margin="{StaticResource SmallLeftMargin}"
-                    VerticalAlignment="Center"
-                    Text="{x:Bind ListMenuItem.Name, Mode=OneWay}"
-                    Style="{ThemeResource DetailSubTitleStyle}" />
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="0.8*"></RowDefinition>
+                <RowDefinition></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0" BorderThickness="2" Width="538">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="50"></RowDefinition>
+                        <RowDefinition Height="50"></RowDefinition>
+                        <RowDefinition Height="50"></RowDefinition>
+                        <RowDefinition Height="50"></RowDefinition>
+                        <RowDefinition Height="50"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition></ColumnDefinition>
+                        <ColumnDefinition></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Horizontal" Grid.Row="0">
+                        <TextBlock Style="{StaticResource DetailSubTitleStyle}" Text="Account:" VerticalAlignment="Center"/>
+                        <TextBlock
+                        Margin="{StaticResource SmallLeftMargin}"
+                        VerticalAlignment="Center"
+                        Text="{x:Bind ListMenuItem.Credentials.Email, Mode=OneWay}"
+                        Style="{ThemeResource DetailSubTitleStyle}" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Grid.Row="1">
+                        <TextBlock Style="{StaticResource DetailSubTitleStyle}" Text="Bot name:" VerticalAlignment="Center"/>
+                        <TextBlock
+                        Margin="{StaticResource SmallLeftMargin}"
+                        VerticalAlignment="Center"
+                        Text="{x:Bind ListMenuItem.Name, Mode=OneWay}"
+                        Style="{ThemeResource DetailSubTitleStyle}" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Grid.Row="2" VerticalAlignment="Center">
+                        <TextBlock
+                            Style="{StaticResource DetailSubTitleStyle}"
+                            Margin="{StaticResource SmallRightMargin}"
+                            Text="Server:" />
+                        <TextBlock Style="{StaticResource DetailSubTitleStyle}" Text="{x:Bind ListMenuItem.Server.Name, Mode=OneWay}" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Grid.Row="3" VerticalAlignment="Center">
+                        <TextBlock
+                        Margin="{StaticResource SmallRightMargin}"
+                        Style="{StaticResource DetailSubTitleStyle}"
+                        Text="Channel:" />
+                        <TextBlock Style="{StaticResource DetailSubTitleStyle}" Text="{x:Bind ListMenuItem.Server.Channel, Mode=OneWay}" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Grid.Row="4" VerticalAlignment="Center">
+                        <TextBlock
+                            Style="{StaticResource DetailSubTitleStyle}"
+                            Text="Delay in seconds:"
+                            Margin="{StaticResource SmallRightMargin}"
+                            />
+                        <TextBlock Style="{StaticResource DetailSubTitleStyle}" Text="{x:Bind Mode=OneWay, Path=ListMenuItem.MessageDelay}" />
+                    </StackPanel>
+                </Grid>
             </StackPanel>
-            <StackPanel Name="block" Padding="0,15,0,0">
-                <TextBlock Style="{StaticResource DetailSubTitleStyle}" Text="Server:" />
-                <TextBlock Style="{StaticResource DetailBodyBaseMediumStyle}" Text="{x:Bind ListMenuItem.Server.Name, Mode=OneWay}" />
-                <TextBlock
-                    Margin="{StaticResource SmallTopMargin}"
-                    Style="{StaticResource DetailSubTitleStyle}"
-                    Text="Channel:" />
-                <TextBlock Style="{StaticResource DetailBodyBaseMediumStyle}" Text="{x:Bind ListMenuItem.Server.Channel, Mode=OneWay}" />
-                <TextBlock Style="{StaticResource DetailSubTitleStyle}" Text="Delay in seconds:" />
-                <TextBlock Style="{StaticResource DetailBodyBaseMediumStyle}" Text="{x:Bind ListMenuItem.MessageDelay, Mode=OneWay}" />
-            </StackPanel>
-        </StackPanel>
+
+            <muxc:ProgressRing x:Name="ProgressSpinnerForWeeklyMessages" IsActive="False" Width="120" Height="120" Grid.Row="2" Grid.ColumnSpan="2"/>
+
+            <TextBlock Text="Weekly messages chart" FontSize="20" HorizontalAlignment="Center"  Grid.Row="2" Margin="0 15 0 0" Grid.ColumnSpan="2"></TextBlock>
+            <telerik:RadCartesianChart  x:Name="barSeries" Grid.Row="2" PaletteName="DefaultLight" Margin="30" EmptyContent="" Grid.ColumnSpan="2">
+                <telerik:RadCartesianChart.VerticalAxis>
+                    <telerik:LinearAxis/>
+                </telerik:RadCartesianChart.VerticalAxis>
+                <telerik:RadCartesianChart.HorizontalAxis>
+                    <telerik:CategoricalAxis/>
+                </telerik:RadCartesianChart.HorizontalAxis>
+                <telerik:RadCartesianChart.Grid>
+                    <telerik:CartesianChartGrid MajorLinesVisibility="Y" StripLinesVisibility="Y"/>
+                </telerik:RadCartesianChart.Grid>
+                <telerik:BarSeries ShowLabels="True" ItemsSource="{Binding}" PaletteMode="DataPoint">
+                    <telerik:BarSeries.LabelDefinitions>
+                        <telerik:ChartSeriesLabelDefinition HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <telerik:ChartSeriesLabelDefinition.Template>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding DataItem.LabelProperty}" Foreground="Black"/>
+                                </DataTemplate>
+                            </telerik:ChartSeriesLabelDefinition.Template>
+                        </telerik:ChartSeriesLabelDefinition>
+                    </telerik:BarSeries.LabelDefinitions>
+                    <telerik:BarSeries.CategoryBinding>
+                        <telerik:PropertyNameDataPointBinding PropertyName="Category"/>
+                    </telerik:BarSeries.CategoryBinding>
+                    <telerik:BarSeries.ValueBinding>
+                        <telerik:PropertyNameDataPointBinding PropertyName="Value"/>
+                    </telerik:BarSeries.ValueBinding>
+                </telerik:BarSeries>
+            </telerik:RadCartesianChart>
+        </Grid>
     </ScrollViewer>
 </UserControl>

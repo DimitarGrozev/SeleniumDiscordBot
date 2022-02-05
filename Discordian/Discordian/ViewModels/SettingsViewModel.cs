@@ -26,12 +26,20 @@ namespace Discordian.ViewModels
         }
 
         private string _versionDescription;
+        private string _appDescription = "Discordian, the selfbot you need.";
 
         public string VersionDescription
         {
             get { return _versionDescription; }
 
             set { SetProperty(ref _versionDescription, value); }
+        }
+
+        public string AppDescription
+        {
+            get { return _appDescription; }
+
+            set { SetProperty(ref _appDescription, value); }
         }
 
         private ICommand _switchThemeCommand;
