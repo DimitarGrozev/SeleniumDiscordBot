@@ -241,7 +241,7 @@
 
                                 <ComboBox Margin="0,0,0,10" x:Name="ChannelNameTextBox" Header="Channel name" PlaceholderText="Channel you want to target..." HorizontalAlignment="Stretch"/>
 
-                                <muxc:NumberBox Margin="0,0,0,10" x:Name="MessageDelayNumberBox" Header="Message delay:" PlaceholderText="Delay in seconds" SpinButtonPlacementMode="Inline" Value="0" Minimum="0" SmallChange="5" LargeChange="10"/>
+                                <muxc:NumberBox Margin="0,0,0,10" x:Name="MessageDelayNumberBox" Header="Message delay:" PlaceholderText="Delay in seconds" SpinButtonPlacementMode="Inline" Value="2" Minimum="2" Maximum="28800" SmallChange="2" LargeChange="10"/>
 
                                 <StackPanel>
                                     <Grid>
