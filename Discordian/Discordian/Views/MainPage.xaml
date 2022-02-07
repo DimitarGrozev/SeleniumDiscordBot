@@ -19,30 +19,7 @@
                 <RowDefinition></RowDefinition>
                 <RowDefinition></RowDefinition>
             </Grid.RowDefinitions>
-
-            <ContentDialog
-            x:Name="LoginContentDialog"
-            Title="Login"
-            Width="Auto"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center">
-                <Grid>
-                    <StackPanel>
-                        <TextBox x:Name="EmailTextBox" Header="Email" PlaceholderText="Discordian email..." HorizontalAlignment="Stretch" Margin="0,0,0,10">
-                        </TextBox>
-                        <PasswordBox x:Name="PasswordTextBox" Margin="0,0,0,10" Header="Password" PlaceholderText="Discordian password..." HorizontalAlignment="Stretch"/>
-                        <TextBlock x:Name="AccountValidationErrorMessage" HorizontalAlignment="Center" Margin="10" Visibility="Collapsed" Foreground="Red"></TextBlock>
-
-                        <StackPanel>
-                            <Grid>
-                                <Button  Content="Login" x:Name="loginBtn" Click="LoginButton_Click" Margin="10" Width="100"  HorizontalAlignment="Center"/>
-                            </Grid>
-                        </StackPanel>
-                    </StackPanel>
-                    <muxc:ProgressRing x:Name="LoginSpinner" IsActive="False" Width="80" Height="80" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
-                </Grid>
-            </ContentDialog>
-
+           
             <TextBlock Text="Messages per bot" FontSize="20" HorizontalAlignment="Center"  Grid.Row="0" Margin="0 15 0 0"></TextBlock>
             <telerik:RadCartesianChart  x:Name="barSeries" Grid.Row="0" PaletteName="DefaultLight" Margin="30" EmptyContent="">
                 <telerik:RadCartesianChart.VerticalAxis>
