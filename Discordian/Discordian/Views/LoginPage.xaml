@@ -16,7 +16,7 @@
         <StackPanel
             x:Name="LoginContentDialog"
             Width="600"
-            Height="370"
+            Height="400"
             HorizontalAlignment="Center"
             VerticalAlignment="Center"
             Background="White"
@@ -26,16 +26,16 @@
                     <ColumnDefinition Width="3*"></ColumnDefinition>
                     <ColumnDefinition Width="3*"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
-                <StackPanel Margin="20,20,20,20">
+                <StackPanel Margin="20,30,20,20">
                     <TextBlock HorizontalAlignment="Center" FontSize="30" CharacterSpacing="100" FontFamily="/Assets/Fonts/AquireLight-YzE0o.otf#Aquire Light" FontWeight="Normal">Login</TextBlock>
-                    <TextBox x:Name="EmailTextBox" Header="Email" PlaceholderText="Discordian email..." HorizontalAlignment="Stretch" Margin="0,0,0,20">
+                    <TextBox x:Name="EmailTextBox" Header="Email" PlaceholderText="Discordian email..." HorizontalAlignment="Stretch" Margin="0,10,0,20">
                     </TextBox>
-                    <PasswordBox x:Name="PasswordTextBox" Margin="0,0,0,10" Header="Password" PlaceholderText="Discordian password..." HorizontalAlignment="Stretch"/>
+                    <PasswordBox x:Name="PasswordTextBox" Margin="0,10,0,10" Header="Password" PlaceholderText="Discordian password..." HorizontalAlignment="Stretch"/>
                     <TextBlock x:Name="AccountValidationErrorMessage" HorizontalAlignment="Center" Margin="10" Visibility="Collapsed" Foreground="Red"></TextBlock>
 
                     <StackPanel>
                         <Grid>
-                            <Button  Content="Login" x:Name="loginBtn" Click="LoginButton_Click" Margin="0 15 0 20" Width="100"  HorizontalAlignment="Center"/>
+                            <Button  Content="Login" x:Name="loginBtn" Click="LoginButton_Click" Margin="0 30 0 20" Width="100"  HorizontalAlignment="Center"/>
                         </Grid>
                     </StackPanel>
                     <StackPanel>
@@ -46,7 +46,7 @@
                 </StackPanel>
                 <muxc:ProgressRing x:Name="LoginSpinner" IsActive="False" Width="80" Height="80" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
                 <StackPanel Grid.Column="2">
-                    <Image Stretch="Fill" Source="/Assets/Background/robotslogin-filtered2.png" Height="370"></Image>
+                    <Image Stretch="Fill" Source="/Assets/Background/robotslogin-filtered2.png" Height="400"></Image>
                 </StackPanel>
             </Grid>
         </StackPanel>
