@@ -3,12 +3,19 @@ using System.Linq;
 using System.Collections.Generic;
 using Discordian.Services;
 using Discordian.ViewModels;
+using Discordian.Core.Helpers;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.Foundation.Collections;
 using Windows.UI.Popups;
 using System.Text.RegularExpressions;
+using Microsoft.UI.Xaml.Controls;
+using Windows.UI.ViewManagement;
 using Discordian.Core.Models.XAML;
+using Windows.UI.Input.Preview.Injection;
+using Windows.System;
 using Discordian.Core.Models;
+using System.Threading.Tasks;
 using Windows.UI.Xaml.Media;
 
 namespace Discordian.Views
@@ -16,8 +23,8 @@ namespace Discordian.Views
     public sealed partial class BotsPage : Page
     {
         public List<string> Emails { get; set; }
-        public BotsViewModel ViewModel { get; } = new BotsViewModel();
 
+        public BotsViewModel ViewModel { get; } = new BotsViewModel();
         public static Dictionary<Guid, bool> ActiveBots = new Dictionary<Guid, bool>();
 
         public BotsPage()
@@ -67,16 +74,17 @@ namespace Discordian.Views
             this.ProgressSpinner.IsActive = true;
 
             var botName = this.BotNameTextBox.Text;
-            var serverName = this.ServerNameTextBox.SelectedItem.ToString();
-            var channelName = this.ChannelNameTextBox.SelectedItem.ToString();
+            var serverName = this.ServerNameTextBox.SelectedItem?.ToString();
+            var channelName = this.ChannelNameTextBox.SelectedItem?.ToString();
             var messageDelay = this.MessageDelayNumberBox.Text;
             var email = this.EmailTextBox.Text;
             var password = this.PasswordTextBox.Password;
             var chosenFileName = this.ChosenFileName.Text;
             var token = this.TokenTextBox.Text;
+
             var bot = new Bot();
 
-            if (this.ValidateBotDetails(botName, serverName, channelName, messageDelay, chosenFileName))
+            if (this.BotDetailsAreValid(botName, serverName, channelName, messageDelay, chosenFileName))
             {
                 try
                 {
@@ -87,10 +95,9 @@ namespace Discordian.Views
                 }
                 catch (ArgumentException ex)
                 {
-                    this.ProgressSpinner.IsActive = false;
-
                     BotCreationValidationMessage.Visibility = Visibility.Visible;
                     BotCreationValidationMessage.Text = ex.Message;
+
                     return;
                 }
 
@@ -124,8 +131,10 @@ namespace Discordian.Views
             }
             else
             {
+                this.ProgressSpinner.IsActive = false;
+
                 BotCreationValidationMessage.Visibility = Visibility.Visible;
-                BotCreationValidationMessage.Text = "Please fill out all of information!";
+                BotCreationValidationMessage.Text = "Please fill out all of the information!";
             }
         }
 
@@ -384,7 +393,7 @@ namespace Discordian.Views
             return isPasswordPresent && isEmailValid;
         }
 
-        private bool ValidateBotDetails(string botName, string serverName, string channelName, string messageDelay, string messagesFileName)
+        private bool BotDetailsAreValid(string botName, string serverName, string channelName, string messageDelay, string messagesFileName)
         {
             var isBotNameValid = botName.Length <= 25;
             var isServerNamePresent = !string.IsNullOrEmpty(serverName);
