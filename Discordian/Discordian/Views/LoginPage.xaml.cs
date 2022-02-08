@@ -15,6 +15,7 @@ namespace Discordian.Views
     public sealed partial class LoginPage : Page
     {
         private readonly string AuthorizeURL = "https://discordian.app/_functions/authorize";
+        private readonly string SubscriptionsURL = "https://manage.wix.com/_api/billing-subscriptions/v1/subscriptions/query";
 
         public LoginPage()
         {
@@ -67,6 +68,9 @@ namespace Discordian.Views
             {
                 throw new ArgumentException("Invalid username or password!");
             }
+
+            var responseContent = await responseMessage.Content.ReadAsStringAsync();
+            var data = await Json.ToObjectAsync<AuthenticationResponse>(responseContent);
         }
 
         private UIElement CreateShell()
