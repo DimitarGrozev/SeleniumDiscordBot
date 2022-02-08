@@ -12,7 +12,7 @@ namespace Discordian.Views
 {
     public sealed partial class LoginPage : Page
     {
-        private readonly string AuthorizeURL = "https://dgrozev99.wixsite.com/my-site/_functions-dev/authorize";
+        private readonly string AuthorizeURL = "https://discordian.app/_functions/authorize";
 
         public LoginPage()
         {

@@ -35,7 +35,7 @@
       Executable="$targetnametoken$.exe"
       EntryPoint="Discordian.App">
       <uap:VisualElements
-        DisplayName="ms-resource:AppDisplayName"
+        DisplayName="Discordian"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png"
         Description="ms-resource:AppDescription"
@@ -48,6 +48,7 @@
           </uap:ShowNameOnTiles>
         </uap:DefaultTile >
         <uap:SplashScreen Image="Assets\SplashScreen.png"  BackgroundColor="#eeeee4"/>
+        <uap:LockScreen BadgeLogo="Assets\BadgeLogo.png" Notification="badge"/>
       </uap:VisualElements>
       <Extensions>
         <uap:Extension Category="windows.appService">
