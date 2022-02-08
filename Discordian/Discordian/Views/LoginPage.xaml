@@ -11,7 +11,7 @@
 
     <Grid>
         <Grid.Background>
-            <ImageBrush Stretch="Fill" ImageSource="/Assets/Background/login.jpg"/>
+            <ImageBrush Stretch="Fill" ImageSource="/Assets/Background/loginbackground.jpg"/>
         </Grid.Background>
         <StackPanel
             x:Name="LoginContentDialog"

@@ -2,6 +2,8 @@
 using System.Threading.Tasks;
 using Discordian.Core.Helpers;
 using Discordian.Core.Models.Wix;
+using Windows.UI;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Animation;
@@ -17,6 +19,9 @@ namespace Discordian.Views
         public LoginPage()
         {
             this.InitializeComponent();
+            var titleBar = ApplicationView.GetForCurrentView().TitleBar;
+            titleBar.BackgroundColor = Colors.Black;
+            titleBar.ButtonBackgroundColor = Colors.Black;
         }
 
         private async void LoginButton_Click(object sender, RoutedEventArgs e)

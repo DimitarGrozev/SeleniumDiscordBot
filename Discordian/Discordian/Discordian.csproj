@@ -258,6 +258,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\Background\login.jpg" />
+    <Content Include="Assets\Background\loginbackground.jpg" />
     <Content Include="Assets\Background\robotslogin-filtered2.png" />
     <Content Include="Assets\BadgeLogo.scale-100.png" />
     <Content Include="Assets\BadgeLogo.scale-125.png" />
