@@ -7,7 +7,7 @@ namespace Discordian.Core.Models.Wix
 {
 	public class AuthenticationResponse
 	{
-		[JsonPropertyName("isSubscribed")]
-		public bool IsSubscribed { get; set; }
+		[JsonPropertyName("sessionToken")]
+		public string SessionsToken { get; set; }
 	}
 }

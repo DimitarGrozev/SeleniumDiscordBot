@@ -28,18 +28,18 @@
                 </Grid.ColumnDefinitions>
                 <StackPanel Margin="20,30,20,20">
                     <TextBlock HorizontalAlignment="Center" FontSize="30" CharacterSpacing="100" FontFamily="/Assets/Fonts/AquireLight-YzE0o.otf#Aquire Light" FontWeight="Normal">Login</TextBlock>
-                    <TextBox x:Name="EmailTextBox" Header="Email" PlaceholderText="Discordian email..." HorizontalAlignment="Stretch" Margin="0,10,0,20">
+                    <TextBox x:Name="EmailTextBox" Header="Email" PlaceholderText="Discordian email..." HorizontalAlignment="Stretch" Margin="0,10,0,10">
                     </TextBox>
                     <PasswordBox x:Name="PasswordTextBox" Margin="0,10,0,10" Header="Password" PlaceholderText="Discordian password..." HorizontalAlignment="Stretch"/>
-                    <TextBlock x:Name="AccountValidationErrorMessage" HorizontalAlignment="Center" Margin="10" Visibility="Collapsed" Foreground="Red"></TextBlock>
+                    <TextBlock x:Name="AccountValidationErrorMessage" HorizontalAlignment="Center" Margin="10" Visibility="Visible" Foreground="Red"></TextBlock>
 
                     <StackPanel>
                         <Grid>
-                            <Button  Content="Login" x:Name="loginBtn" Click="LoginButton_Click" Margin="0 30 0 20" Width="100"  HorizontalAlignment="Center"/>
+                            <Button  Content="Login" x:Name="loginBtn" Click="LoginButton_Click" Margin="0 10 0 20" Width="100"  HorizontalAlignment="Center"/>
                         </Grid>
                     </StackPanel>
-                    <StackPanel>
-                        <TextBlock HorizontalAlignment="Center" Margin="0 40 0 0"> Don't have an account ?
+                    <StackPanel VerticalAlignment="Bottom">
+                        <TextBlock HorizontalAlignment="Center" Margin="0 20 0 0"> Don't have an account ?
                             <Hyperlink NavigateUri="https://discordian.app" TextDecorations="Underline">Register</Hyperlink>
                         </TextBlock>
                     </StackPanel>
