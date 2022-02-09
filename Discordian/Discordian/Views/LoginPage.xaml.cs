@@ -14,8 +14,10 @@ namespace Discordian.Views
 {
     public sealed partial class LoginPage : Page
     {
+        public static Subscription userSubscription = new Subscription();
+
+        private readonly string AuthenticateURL = "https://discordian.app/_functions/authenticate";
         private readonly string AuthorizeURL = "https://discordian.app/_functions/authorize";
-        private readonly string SubscriptionsURL = "https://manage.wix.com/_api/billing-subscriptions/v1/subscriptions/query";
 
         public LoginPage()
         {
@@ -34,6 +36,7 @@ namespace Discordian.Views
             try
             {
                 await this.AuthenticateUserAsync();
+                await this.AuthorizeUserAsync();
 
                 LoginSpinner.IsActive = false;
 
@@ -60,7 +63,7 @@ namespace Discordian.Views
             httpClient.DefaultRequestHeaders.Add("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36");
             var httpRequestMessage = new HttpRequestMessage();
             var content = new HttpStringContent(await Json.StringifyAsync(new User { email = email, password = password }), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json");
-            var url = new Uri(AuthorizeURL);
+            var url = new Uri(AuthenticateURL);
 
             var responseMessage = await httpClient.PostAsync(url, content);
 
@@ -68,9 +71,32 @@ namespace Discordian.Views
             {
                 throw new ArgumentException("Invalid username or password!");
             }
+        }
 
-            var responseContent = await responseMessage.Content.ReadAsStringAsync();
-            var data = await Json.ToObjectAsync<AuthenticationResponse>(responseContent);
+        private async Task AuthorizeUserAsync()
+        {
+            var email = this.EmailTextBox.Text;
+
+            var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Add("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36");
+            var httpRequestMessage = new HttpRequestMessage();
+            var content = new HttpStringContent(await Json.StringifyAsync(new User { email = email }), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json");
+            var url = new Uri(AuthorizeURL);
+
+            var responseMessage = await httpClient.PostAsync(url, content);
+
+            if (responseMessage.StatusCode != HttpStatusCode.Ok)
+            {
+                throw new ArgumentException("User is not subscribed!");
+            }
+
+            var data = await responseMessage.Content.ReadAsStringAsync();
+            var authorizationResponse = await Json.ToObjectAsync<AuthorizationResponse>(data);
+
+            if (authorizationResponse != null)
+            {
+                userSubscription = authorizationResponse.Subscription;
+            }
         }
 
         private UIElement CreateShell()
