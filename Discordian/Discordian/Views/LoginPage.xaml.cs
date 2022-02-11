@@ -2,13 +2,14 @@
 using System.Threading.Tasks;
 using Discordian.Core.Helpers;
 using Discordian.Core.Models.Wix;
+using Discordian.Utilities;
 using Windows.UI;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.Web.Http;
-
+using Windows.Web.Http.Headers;
 
 namespace Discordian.Views
 {
@@ -16,6 +17,7 @@ namespace Discordian.Views
     {
         public static Subscription userSubscription = new Subscription();
 
+        private readonly AppConfig appConfig = new AppConfig();
         private readonly string AuthenticateURL = "https://discordian.app/_functions/authenticate";
         private readonly string AuthorizeURL = "https://discordian.app/_functions/authorize";
 
@@ -36,7 +38,6 @@ namespace Discordian.Views
             try
             {
                 await this.AuthenticateUserAsync();
-                await this.AuthorizeUserAsync();
 
                 LoginSpinner.IsActive = false;
 
@@ -61,41 +62,33 @@ namespace Discordian.Views
 
             var httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Add("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36");
-            var httpRequestMessage = new HttpRequestMessage();
+
             var content = new HttpStringContent(await Json.StringifyAsync(new User { email = email, password = password }), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json");
-            var url = new Uri(AuthenticateURL);
 
-            var responseMessage = await httpClient.PostAsync(url, content);
+            var httpRequestMessage = new HttpRequestMessage();
+            httpRequestMessage.RequestUri = new Uri(AuthenticateURL);
+            httpRequestMessage.Headers.Add("discordian-api-key", this.appConfig.ApiKey.DiscordianApiKey);
+            httpRequestMessage.Content = content;
+            httpRequestMessage.Method = HttpMethod.Post;
 
-            if (responseMessage.StatusCode != HttpStatusCode.Ok)
+            var responseMessage = await httpClient.SendRequestAsync(httpRequestMessage);
+
+            if (responseMessage.StatusCode == HttpStatusCode.Forbidden)
             {
                 throw new ArgumentException("Invalid username or password!");
             }
-        }
 
-        private async Task AuthorizeUserAsync()
-        {
-            var email = this.EmailTextBox.Text;
-
-            var httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Add("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36");
-            var httpRequestMessage = new HttpRequestMessage();
-            var content = new HttpStringContent(await Json.StringifyAsync(new User { email = email }), Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json");
-            var url = new Uri(AuthorizeURL);
-
-            var responseMessage = await httpClient.PostAsync(url, content);
-
-            if (responseMessage.StatusCode != HttpStatusCode.Ok)
+            if (responseMessage.StatusCode == HttpStatusCode.BadRequest)
             {
-                throw new ArgumentException("User is not subscribed!");
+                return;
             }
 
-            var data = await responseMessage.Content.ReadAsStringAsync();
-            var authorizationResponse = await Json.ToObjectAsync<AuthorizationResponse>(data);
+            var responseContent = await responseMessage.Content.ReadAsStringAsync();
+            var authenticationResponse = await Json.ToObjectAsync<AuthenticationResponse>(responseContent);
 
-            if (authorizationResponse != null)
+            if (authenticationResponse?.Subscription != null)
             {
-                userSubscription = authorizationResponse.Subscription;
+                userSubscription = authenticationResponse.Subscription;
             }
         }
 

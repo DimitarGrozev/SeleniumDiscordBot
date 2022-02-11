@@ -45,5 +45,8 @@ namespace Discordian.Core.Models.Wix
 
 		[JsonPropertyName("cancellationDate")]
 		public DateTime CancellationDate { get; set; }
+
+		[JsonPropertyName("userSubscriptions")]
+		public List<string> UserSubscriptions { get; set; }
 	}
 }

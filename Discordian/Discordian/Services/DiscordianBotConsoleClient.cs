@@ -59,14 +59,14 @@ namespace Discordian.Services
             }
         }
 
-        public static void StopAllBots()
+        public static async void StopAllBots()
         {
             var valueSet = new ValueSet();
             valueSet.Add("request", "stopAll");
 
             if (App.Connection != null)
             {
-                App.Connection.SendMessageAsync(valueSet).GetResults();
+                 await App.Connection.SendMessageAsync(valueSet);
             }
         }
     }

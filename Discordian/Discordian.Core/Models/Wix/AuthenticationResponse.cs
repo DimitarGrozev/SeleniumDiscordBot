@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Discordian.Core.Models.Wix
 {
 	public class AuthenticationResponse
 	{
-		[JsonPropertyName("userId")]
-		public string UserId { get; set; }
+		[JsonPropertyName("subscription")]
+		public Subscription Subscription { get; set; }
 	}
 }

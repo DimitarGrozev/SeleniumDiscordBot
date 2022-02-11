@@ -95,6 +95,8 @@ namespace Discordian.Views
                 }
                 catch (ArgumentException ex)
                 {
+                    this.ProgressSpinner.IsActive = false;
+
                     BotCreationValidationMessage.Visibility = Visibility.Visible;
                     BotCreationValidationMessage.Text = ex.Message;
 
@@ -112,6 +114,7 @@ namespace Discordian.Views
                 this.MessageDelayNumberBox.Text = "0";
                 this.ChosenFileName.Text = string.Empty;
                 this.EmailTextBox.Text = string.Empty;
+                this.EmailTextBox.SelectedItem = string.Empty;
                 this.PasswordTextBox.Password = string.Empty;
                 this.TokenTextBox.Text = string.Empty;
 
