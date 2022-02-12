@@ -1,0 +1,54 @@
+﻿<Page
+    x:Class="Discordian.Views.LoginPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Discordian.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid>
+        <Grid.Background>
+            <ImageBrush Stretch="Fill" ImageSource="/Assets/Background/loginbackground.jpg"/>
+        </Grid.Background>
+        <StackPanel
+            x:Name="LoginContentDialog"
+            Width="600"
+            Height="400"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Background="White"
+            CornerRadius="5">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="3*"></ColumnDefinition>
+                    <ColumnDefinition Width="3*"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <StackPanel Margin="20,30,20,20">
+                    <TextBlock HorizontalAlignment="Center" FontSize="30" CharacterSpacing="100" FontFamily="/Assets/Fonts/AquireLight-YzE0o.otf#Aquire Light" FontWeight="Normal">Login</TextBlock>
+                    <TextBox x:Name="EmailTextBox" Header="Email" PlaceholderText="Discordian email..." HorizontalAlignment="Stretch" Margin="0,10,0,10">
+                    </TextBox>
+                    <PasswordBox x:Name="PasswordTextBox" Margin="0,10,0,10" Header="Password" PlaceholderText="Discordian password..." HorizontalAlignment="Stretch"/>
+                    <TextBlock x:Name="AccountValidationErrorMessage" HorizontalAlignment="Center" Margin="10" Visibility="Visible" Foreground="Red"></TextBlock>
+
+                    <StackPanel>
+                        <Grid>
+                            <Button  Content="Login" x:Name="loginBtn" Click="LoginButton_Click" Margin="0 10 0 20" Width="100"  HorizontalAlignment="Center"/>
+                        </Grid>
+                    </StackPanel>
+                    <StackPanel VerticalAlignment="Bottom">
+                        <TextBlock HorizontalAlignment="Center" Margin="0 20 0 0"> Don't have an account ?
+                            <Hyperlink NavigateUri="https://discordian.app" TextDecorations="Underline">Register</Hyperlink>
+                        </TextBlock>
+                    </StackPanel>
+                </StackPanel>
+                <muxc:ProgressRing x:Name="LoginSpinner" IsActive="False" Width="80" Height="80" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                <StackPanel Grid.Column="2">
+                    <Image Stretch="Fill" Source="/Assets/Background/robotslogin-filtered2.png" Height="400"></Image>
+                </StackPanel>
+            </Grid>
+        </StackPanel>
+    </Grid>
+</Page>

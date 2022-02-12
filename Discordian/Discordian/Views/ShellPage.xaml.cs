@@ -18,5 +18,10 @@ namespace Discordian.Views
             DataContext = ViewModel;
             ViewModel.Initialize(shellFrame, navigationView, KeyboardAccelerators);
         }
+
+        private async void NavigationViewItem_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
+        {
+            await CoreApplication.RequestRestartAsync("Restart after login");
+        }
     }
 }

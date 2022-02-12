@@ -12,7 +12,7 @@
   <Identity
     Name="0E3B9D02-236F-4DFA-9A4A-6A32D4873B17"
     Publisher="CN=grod"
-    Version="1.0.0.0" />
+    Version="1.0.5.0" />
 
   <mp:PhoneIdentity PhoneProductId="0E3B9D02-236F-4DFA-9A4A-6A32D4873B17" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
@@ -35,7 +35,7 @@
       Executable="$targetnametoken$.exe"
       EntryPoint="Discordian.App">
       <uap:VisualElements
-        DisplayName="ms-resource:AppDisplayName"
+        DisplayName="Discordian"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png"
         Description="ms-resource:AppDescription"
@@ -48,6 +48,7 @@
           </uap:ShowNameOnTiles>
         </uap:DefaultTile >
         <uap:SplashScreen Image="Assets\SplashScreen.png"  BackgroundColor="#eeeee4"/>
+        <uap:LockScreen BadgeLogo="Assets\BadgeLogo.png" Notification="badge"/>
       </uap:VisualElements>
       <Extensions>
         <uap:Extension Category="windows.appService">
@@ -66,10 +67,9 @@
     <rescap:Capability Name="runFullTrust"/>
     <rescap:Capability Name="broadFileSystemAccess" />
     <rescap:Capability Name="appDiagnostics" />
-    <uap:Capability Name="picturesLibrary"/>
-    <uap:Capability Name="videosLibrary"/>
     <Capability Name="internetClient" />
     <rescap:Capability Name="confirmAppClose" />
+    <Capability Name="internetClientServer"/>
   </Capabilities>
 
   <genTemplate:Metadata>

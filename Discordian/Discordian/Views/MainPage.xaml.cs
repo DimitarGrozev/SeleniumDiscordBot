@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Discordian.Core.Helpers;
 using Discordian.Core.Models.Charts;
+using Discordian.Core.Models.Wix;
 using Discordian.Services;
 using Discordian.Utilities;
 using Discordian.ViewModels;
@@ -11,6 +14,7 @@ using Windows.UI.Core.Preview;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.Web.Http;
 
 namespace Discordian.Views
 {

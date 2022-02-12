@@ -19,7 +19,7 @@
                 <RowDefinition></RowDefinition>
                 <RowDefinition></RowDefinition>
             </Grid.RowDefinitions>
-
+           
             <TextBlock Text="Messages per bot" FontSize="20" HorizontalAlignment="Center"  Grid.Row="0" Margin="0 15 0 0"></TextBlock>
             <telerik:RadCartesianChart  x:Name="barSeries" Grid.Row="0" PaletteName="DefaultLight" Margin="30" EmptyContent="">
                 <telerik:RadCartesianChart.VerticalAxis>
