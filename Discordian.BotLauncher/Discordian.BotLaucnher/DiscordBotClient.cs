@@ -17,7 +17,7 @@ namespace Discordian.BotLauncher
 	{
 		private static readonly object loginLock = new object();
 
-		private const string channelsList = "content-2a4AW9";
+		private const string channelsList = "channels";
 		private const string discordLoginUrl = "https://discord.com/login";
 		private const string targetUrl = "https://discord.com/channels/@me";
 
@@ -42,9 +42,9 @@ namespace Discordian.BotLauncher
 		{
 			CancellationToken ct = (CancellationToken)obj;
 
-			var chromeDriverService = ChromeDriverService.CreateDefaultService();
+			var chromeDriverService = EdgeDriverService.CreateDefaultService();
 			chromeDriverService.HideCommandPromptWindow = true;
-			var driver = new ChromeDriver(chromeDriverService);
+			var driver = new EdgeDriver(chromeDriverService);
 
 			driver.Navigate().GoToUrl(targetUrl);
 			Thread.Sleep(2000);
@@ -176,23 +176,24 @@ namespace Discordian.BotLauncher
 			server.Click();
 			Thread.Sleep(1000);
 
-			//Find channel
-			var channelsSection = driver.FindElement(SelectorByAttributeValue("class", channelsList));
-			channelsSection.Click();
+			//Find channel in channel list
+			var js = (IJavaScriptExecutor)driver;
 
 			IWebElement channel = null;
 
-			for (int i = 0; i < 100; i++)
+			for (int i = 0, scroll = 400; i < 10; i++, scroll+=400)
 			{
-				new Actions(driver).SendKeys(Keys.Down).Build().Perform();
-
 				try
 				{
 					channel = driver.FindElement(SelectorByAttributeThatContainsValue("aria-label", botData.Server.Channel));
 					channel.Click();
+
 				}
 				catch (Exception)
 				{
+					//If channel is not found scroll down
+					js.ExecuteScript($"document.getElementById('{channelsList}').scroll(0, {scroll})");
+
 					continue;
 				}
 
