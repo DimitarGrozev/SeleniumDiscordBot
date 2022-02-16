@@ -91,7 +91,7 @@
             Title="Subscription renewal"
             Message="Please renew your subscription in order to continue using Discordian." >
                 <muxc:InfoBar.ActionButton>
-                    <HyperlinkButton Content="Renew subscription" NavigateUri="https://www.discordian.com" />
+                    <HyperlinkButton Content="Renew subscription" NavigateUri="https://www.discordian.app" />
                 </muxc:InfoBar.ActionButton>
             </muxc:InfoBar>
             <muxc:InfoBar
