@@ -15,11 +15,10 @@ namespace Discordian.Views
 {
     public sealed partial class LoginPage : Page
     {
-        public static Subscription userSubscription = new Subscription();
+        public static Subscription userSubscription;
 
         private readonly AppConfig appConfig = new AppConfig();
         private readonly string AuthenticateURL = "https://discordian.app/_functions/authenticate";
-        private readonly string AuthorizeURL = "https://discordian.app/_functions/authorize";
 
         public LoginPage()
         {
@@ -73,7 +72,7 @@ namespace Discordian.Views
 
             var responseMessage = await httpClient.SendRequestAsync(httpRequestMessage);
 
-            if (responseMessage.StatusCode == HttpStatusCode.Forbidden)
+            if (responseMessage.StatusCode == HttpStatusCode.NotFound)
             {
                 throw new ArgumentException("Invalid username or password!");
             }

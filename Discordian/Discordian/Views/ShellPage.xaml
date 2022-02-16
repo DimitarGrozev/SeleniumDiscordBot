@@ -10,7 +10,8 @@
     xmlns:views="using:Discordian.Views"
     xmlns:ic="using:Microsoft.Xaml.Interactions.Core"
     xmlns:i="using:Microsoft.Xaml.Interactivity"
-    mc:Ignorable="d">
+    mc:Ignorable="d"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls">
 
     <Page.Transitions>
         <TransitionCollection>
@@ -40,12 +41,12 @@
             Or to use an IconElement instead of a Symbol see https://github.com/Microsoft/WindowsTemplateStudio/blob/release/docs/UWP/projectTypes/navigationpane.md
             Edit String/en-US/Resources.resw: Add a menu item title for each page
             -->
-            <winui:NavigationViewItem x:Uid="Shell_Main" helpers:NavHelper.NavigateTo="views:MainPage">
+            <winui:NavigationViewItem x:Uid="Shell_Main" helpers:NavHelper.NavigateTo="views:MainPage" IsEnabled ="{x:Bind ViewModel.IsItemEnabled}">
                 <winui:NavigationViewItem.Icon>
                     <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xe9d2;" FontSize="200"/>
                 </winui:NavigationViewItem.Icon>
             </winui:NavigationViewItem>
-            <winui:NavigationViewItem x:Uid="Shell_Bots" helpers:NavHelper.NavigateTo="views:BotsPage" >
+            <winui:NavigationViewItem x:Uid="Shell_Bots" helpers:NavHelper.NavigateTo="views:BotsPage" IsEnabled ="{x:Bind ViewModel.IsItemEnabled}">
                 <winui:NavigationViewItem.Icon>
                     <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xe99a;" />
                 </winui:NavigationViewItem.Icon>
@@ -71,9 +72,38 @@
         </i:Interaction.Behaviors>
         <Grid>
             <Grid.Background>
-                <ImageBrush Stretch="Fill" ImageSource="/Assets/Background/loginbackground.jpg"/>
+                <ImageBrush Stretch="Fill" ImageSource="/Assets/Background/Background.png"/>
             </Grid.Background>
+            <Border BorderBrush="White" BorderThickness="10 0 0 0" Margin="100 300 200 350">
+                <StackPanel HorizontalAlignment="Left" Margin="80 20 50 50">
+                    <TextBlock FontSize="50" Foreground="White" FontWeight="Bold" CharacterSpacing="100">
+                            Welcome back
+                    </TextBlock>
+                    <TextBlock x:Name="WelcomeBackMessage" FontSize="50" Foreground="White" Margin="0 0 0 30">
+                    </TextBlock>
+                </StackPanel>
+            </Border>
             <Frame x:Name="shellFrame" />
+            <muxc:InfoBar
+            x:Name="SubscriptionRenewalNotification"
+            IsOpen="False"
+            Severity="Warning"
+            Title="Subscription renewal"
+            Message="Please renew your subscription in order to continue using Discordian." >
+                <muxc:InfoBar.ActionButton>
+                    <HyperlinkButton Content="Renew subscription" NavigateUri="https://www.discordian.com" />
+                </muxc:InfoBar.ActionButton>
+            </muxc:InfoBar>
+            <muxc:InfoBar
+            x:Name="InitialSubscriptionNotification"
+            IsOpen="False"
+            Severity="Warning"
+            Title="Subscription"
+            Message="Please subscribe in order to use all of Discordian's functionalities." >
+                <muxc:InfoBar.ActionButton>
+                    <HyperlinkButton Content="Renew subscription" NavigateUri="https://www.discordian.app" />
+                </muxc:InfoBar.ActionButton>
+            </muxc:InfoBar>
         </Grid>
         <winui:NavigationView.PaneFooter>
             <StackPanel Orientation="Vertical">

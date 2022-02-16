@@ -189,6 +189,7 @@
             ListHeaderTemplate="{StaticResource MinimalListHeaderTemplate}"
             NoSelectionContentTemplate="{StaticResource NoSelectionContentTemplate}"
             SelectedItem="{x:Bind ViewModel.Selected, Mode=TwoWay}"
+            IsEnabled="{x:Bind ViewModel.IsActionEnabled}"
         />
 
         <!-- Add bot form -->

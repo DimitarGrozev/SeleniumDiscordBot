@@ -273,6 +273,8 @@
     <Compile Include="Helpers\ResourceExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\Background\Background-faded.png" />
+    <Content Include="Assets\Background\Background.png" />
     <Content Include="Assets\Background\login.jpg" />
     <Content Include="Assets\Background\loginbackground.jpg" />
     <Content Include="Assets\Background\robotslogin-filtered2.png" />

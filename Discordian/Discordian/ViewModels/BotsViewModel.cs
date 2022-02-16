@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 using Discordian.Core.Models;
 using Discordian.Services;
-
+using Discordian.Views;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Uwp.UI.Controls;
 
@@ -14,6 +14,19 @@ namespace Discordian.ViewModels
     public class BotsViewModel : ObservableObject
     {
         private Bot _selected;
+        private bool isActionEnabled = LoginPage.userSubscription.UserSubscriptions != null;
+
+        public bool IsActionEnabled
+        {
+            get
+            {
+                return isActionEnabled;
+            }
+            set
+            {
+                SetProperty(ref isActionEnabled, value);
+            }
+        }
 
         public Bot Selected
         {
@@ -30,7 +43,7 @@ namespace Discordian.ViewModels
         public async Task LoadDataAsync(ListDetailsViewState viewState)
         {
             SampleItems.Clear();
-            
+
             var data = await DiscordianDbContext.GetBotListAsync();
 
             foreach (var item in data)
