@@ -14,7 +14,7 @@ namespace Discordian.ViewModels
     public class BotsViewModel : ObservableObject
     {
         private Bot _selected;
-        private bool isActionEnabled = LoginPage.userSubscription.UserSubscriptions != null;
+        private bool isActionEnabled = LoginPage.userSubscription.UserSubscriptions != null || LoginPage.userSubscription.IsPromotionSubscription;
 
         public bool IsActionEnabled
         {

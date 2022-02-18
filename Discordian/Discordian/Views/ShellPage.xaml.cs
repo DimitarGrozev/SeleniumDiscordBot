@@ -24,14 +24,18 @@ namespace Discordian.Views
         {
             var subscription = LoginPage.userSubscription;
 
-            if(subscription == null)
+            //Check if user is with a promoted account and if not check his subscription status
+            if (subscription?.IsPromotionSubscription == false)
             {
-                this.InitialSubscriptionNotification.IsOpen = true;
-            }
+                if (subscription == null)
+                {
+                    this.InitialSubscriptionNotification.IsOpen = true;
+                }
 
-            if(subscription.UserSubscriptions == null)
-            {
-                this.SubscriptionRenewalNotification.IsOpen = true;
+                if (subscription.UserSubscriptions == null)
+                {
+                    this.SubscriptionRenewalNotification.IsOpen = true;
+                }
             }
 
             this.WelcomeBackMessage.Text = subscription.Email;

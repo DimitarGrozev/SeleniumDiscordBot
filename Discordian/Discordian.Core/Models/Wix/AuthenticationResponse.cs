@@ -4,7 +4,7 @@ namespace Discordian.Core.Models.Wix
 {
 	public class AuthenticationResponse
 	{
-		[JsonPropertyName("subscription")]
-		public Subscription Subscription { get; set; }
+		[JsonPropertyName("error")]
+		public string Error{ get; set; }
 	}
 }

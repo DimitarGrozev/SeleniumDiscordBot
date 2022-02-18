@@ -176,11 +176,13 @@
     <Compile Include="Helpers\SettingsStorageExtensions.cs" />
     <Compile Include="Services\ActivationService.cs" />
     <Compile Include="Activation\DefaultActivationHandler.cs" />
+    <Compile Include="Services\BackgroundTaskSchedulerService.cs" />
     <Compile Include="Services\DiscordApiClient.cs" />
     <Compile Include="Services\DiscordianBotConsoleClient.cs" />
     <Compile Include="Services\DiscordianDbContext.cs" />
     <Compile Include="Services\NavigationService.cs" />
     <Compile Include="Services\ThemeSelectorService.cs" />
+    <Compile Include="Services\WixApiClient.cs" />
     <Compile Include="Utilities\AppConfig.cs" />
     <Compile Include="Utilities\DriverFactory.cs" />
     <Compile Include="Utilities\Logger.cs" />
