@@ -16,8 +16,6 @@ namespace Discordian.Views
 {
     public sealed partial class LoginPage : Page
     {
-        public static Subscription userSubscription;
-
         private readonly WixApiClient wixApiClient;
 
         public LoginPage()
@@ -57,7 +55,7 @@ namespace Discordian.Views
                 return;
             }
 
-            userSubscription = await this.GetUserSubscription();
+            UserContextService.Subscription = await this.GetUserSubscription();
 
             LoginSpinner.IsActive = false;
 

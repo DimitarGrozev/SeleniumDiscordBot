@@ -22,7 +22,7 @@ namespace Discordian.Views
 
         private void CheckSubscriptionStatus()
         {
-            var subscription = LoginPage.userSubscription;
+            var subscription = UserContextService.Subscription;
 
             //Check if user is with a promoted account and if not check his subscription status
             if (subscription?.IsPromotionSubscription == false)

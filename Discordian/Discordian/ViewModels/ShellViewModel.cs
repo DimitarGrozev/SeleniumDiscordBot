@@ -36,7 +36,7 @@ namespace Discordian.ViewModels
         {
             get
             {
-                return LoginPage.userSubscription != null;
+                return UserContextService.Subscription != null;
             }
         }
 

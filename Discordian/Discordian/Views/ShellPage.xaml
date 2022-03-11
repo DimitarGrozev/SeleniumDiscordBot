@@ -74,7 +74,7 @@
             <Grid.Background>
                 <ImageBrush Stretch="Fill" ImageSource="/Assets/Background/Background.png"/>
             </Grid.Background>
-            <Border BorderBrush="White" BorderThickness="10 0 0 0" Margin="100 300 200 350">
+            <Border BorderBrush="White" BorderThickness="10 0 0 0" Margin="100 200 200 350">
                 <StackPanel HorizontalAlignment="Left" Margin="80 20 50 50">
                     <TextBlock FontSize="50" Foreground="White" FontWeight="Bold" CharacterSpacing="100">
                             Welcome back

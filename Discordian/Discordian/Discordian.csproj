@@ -182,6 +182,7 @@
     <Compile Include="Services\DiscordianDbContext.cs" />
     <Compile Include="Services\NavigationService.cs" />
     <Compile Include="Services\ThemeSelectorService.cs" />
+    <Compile Include="Services\UserContextService.cs" />
     <Compile Include="Services\WixApiClient.cs" />
     <Compile Include="Utilities\AppConfig.cs" />
     <Compile Include="Utilities\DriverFactory.cs" />
