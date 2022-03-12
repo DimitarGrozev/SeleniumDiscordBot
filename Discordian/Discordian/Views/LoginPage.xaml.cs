@@ -54,8 +54,14 @@ namespace Discordian.Views
 
                 return;
             }
+            else
+            {
+                var localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
+                localSettings.Values["user"] = this.EmailTextBox.Text;
+            }
 
             UserContextService.Subscription = await this.GetUserSubscription();
+            await BackgroundTaskSchedulerService.ScheduleSubscriptionStatusCheckAsync();
 
             LoginSpinner.IsActive = false;
 

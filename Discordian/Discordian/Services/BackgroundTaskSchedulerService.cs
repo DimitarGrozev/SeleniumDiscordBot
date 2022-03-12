@@ -5,23 +5,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Background;
+using Windows.Storage;
 
 namespace Discordian.Services
 {
-    public class BackgroundTaskSchedulerService
+    public static class BackgroundTaskSchedulerService
     {
-        private readonly string entryPoint = "BackgroundTaskScheduler.SubscriptionStatusCheck";
-        private readonly string taskName = "SubscriptionStatusCheck";
+        private static readonly string taskName = "SubscriptionCheckTask";
 
-        public async Task ScheduleSubscriptionStatusCheckAsync()
+        public static async Task ScheduleSubscriptionStatusCheckAsync()
         {
             var requestStatus = await BackgroundExecutionManager.RequestAccessAsync();
 
-            if (requestStatus != BackgroundAccessStatus.AlwaysAllowed)
+            if (requestStatus == BackgroundAccessStatus.DeniedBySystemPolicy || requestStatus == BackgroundAccessStatus.DeniedByUser)
             {
-                // Depending on the value of requestStatus, provide an appropriate response
-                // such as notifying the user which functionality won't work as expected
-
+                //Show alert to enable background tasks
                 return;
             }
 
@@ -33,17 +31,12 @@ namespace Discordian.Services
                 }
             }
 
-            var dailyTrigger = new TimeTrigger(10, false);
-
+            var dailyTrigger = new TimeTrigger(1440, false);
             var builder = new BackgroundTaskBuilder();
+
             builder.Name = taskName;
-            builder.TaskEntryPoint = entryPoint;
             builder.SetTrigger(dailyTrigger);
-        }
-
-        public static async Task SubscriptionStatusCheck()
-        {
-
+            builder.Register();
         }
     }
 }

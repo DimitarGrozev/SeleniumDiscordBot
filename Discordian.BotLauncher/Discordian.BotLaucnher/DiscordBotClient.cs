@@ -42,9 +42,9 @@ namespace Discordian.BotLauncher
 		{
 			CancellationToken ct = (CancellationToken)obj;
 
-			var chromeDriverService = ChromeDriverService.CreateDefaultService();
-			chromeDriverService.HideCommandPromptWindow = true;
-			var driver = new ChromeDriver(chromeDriverService);
+			var edgeDriverService = EdgeDriverService.CreateDefaultService();
+			edgeDriverService.HideCommandPromptWindow = true;
+			var driver = new EdgeDriver(edgeDriverService);
 
 			driver.Navigate().GoToUrl(targetUrl);
 			Thread.Sleep(2000);
@@ -114,11 +114,11 @@ namespace Discordian.BotLauncher
 		{
 			var token = string.Empty;
 
-			var chromeDriverService = ChromeDriverService.CreateDefaultService();
-			chromeDriverService.HideCommandPromptWindow = true;
-			var options = new ChromeOptions();
+			var edgeDriverService = EdgeDriverService.CreateDefaultService();
+			edgeDriverService.HideCommandPromptWindow = true;
+			var options = new EdgeOptions();
 			options.EnableMobileEmulation("iPhone 8");
-			var driver = new ChromeDriver(chromeDriverService, options);
+			var driver = new EdgeDriver(edgeDriverService, options);
 			driver.Navigate().GoToUrl(targetUrl);
 			Thread.Sleep(2000);
 
