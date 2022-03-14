@@ -3,7 +3,6 @@ using Discordian.Services;
 using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.AppService;
 using Windows.ApplicationModel.Background;
-using Windows.ApplicationModel.Core;
 using Windows.UI.Xaml;
 
 namespace Discordian
@@ -11,7 +10,6 @@ namespace Discordian
     public sealed partial class App : Application
     {
         private Lazy<ActivationService> _activationService;
-        private WixApiClient wixApiClient;
 
         public static AppServiceConnection Connection = null;
 
@@ -29,10 +27,9 @@ namespace Discordian
 
             // Deferred execution until used. Check https://docs.microsoft.com/dotnet/api/system.lazy-1 for further info on Lazy<T> class.
             _activationService = new Lazy<ActivationService>(CreateActivationService);
-            wixApiClient = new WixApiClient();
         }
 
-        protected async override void OnBackgroundActivated(BackgroundActivatedEventArgs args)
+        protected override async void OnBackgroundActivated(BackgroundActivatedEventArgs args)
         {
             base.OnBackgroundActivated(args);
 
@@ -46,15 +43,7 @@ namespace Discordian
             }
             else
             {
-                var localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
-                var email = localSettings.Values["user"].ToString();
-                var subscription = await wixApiClient.GetSubscriptionAsync(email);
-
-                if(subscription.UserSubscriptions == null)
-                {
-                    DiscordianBotConsoleClient.StopAllBots();
-                    CoreApplication.Exit();
-                }
+                await BackgroundTaskSchedulerService.ChechSubscriptionStatusAsync();
             }
         }
 
