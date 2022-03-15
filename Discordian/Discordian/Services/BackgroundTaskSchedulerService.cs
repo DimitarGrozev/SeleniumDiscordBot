@@ -1,17 +1,14 @@
-﻿using Discordian.Core.Models.Wix;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Background;
-using Windows.Storage;
+using Windows.ApplicationModel.Core;
 
 namespace Discordian.Services
 {
     public static class BackgroundTaskSchedulerService
     {
         private static readonly string taskName = "SubscriptionCheckTask";
+        private static WixApiClient wixApiClient = new WixApiClient();
 
         public static async Task ScheduleSubscriptionStatusCheckAsync()
         {
@@ -37,6 +34,19 @@ namespace Discordian.Services
             builder.Name = taskName;
             builder.SetTrigger(dailyTrigger);
             builder.Register();
+        }
+
+        public static async Task ChechSubscriptionStatusAsync()
+        {
+            var localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
+            var email = localSettings.Values["user"].ToString();
+            var subscription = await wixApiClient.GetSubscriptionAsync(email);
+
+            if (!subscription.IsPromotionSubscription && subscription.UserSubscriptions == null)
+            {
+                DiscordianBotConsoleClient.StopAllBots();
+                CoreApplication.Exit();
+            }
         }
     }
 }

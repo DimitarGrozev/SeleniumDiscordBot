@@ -11,8 +11,8 @@
 
   <Identity
     Name="0E3B9D02-236F-4DFA-9A4A-6A32D4873B17"
-    Publisher="CN=grod"
-    Version="1.0.5.0" />
+    Publisher="CN=Discordian"
+    Version="1.0.1.0" />
 
   <mp:PhoneIdentity PhoneProductId="0E3B9D02-236F-4DFA-9A4A-6A32D4873B17" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
