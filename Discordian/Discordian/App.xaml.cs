@@ -29,7 +29,7 @@ namespace Discordian
             _activationService = new Lazy<ActivationService>(CreateActivationService);
         }
 
-        protected override void OnBackgroundActivated(BackgroundActivatedEventArgs args)
+        protected override async void OnBackgroundActivated(BackgroundActivatedEventArgs args)
         {
             base.OnBackgroundActivated(args);
 
@@ -40,6 +40,10 @@ namespace Discordian
 
                 AppServiceTriggerDetails details = args.TaskInstance.TriggerDetails as AppServiceTriggerDetails;
                 Connection = details.AppServiceConnection;
+            }
+            else
+            {
+                await BackgroundTaskSchedulerService.ChechSubscriptionStatusAsync();
             }
         }
 

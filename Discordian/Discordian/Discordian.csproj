@@ -18,16 +18,19 @@
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WindowsXamlEnableOverview>true</WindowsXamlEnableOverview>
-    <PackageCertificateKeyFile>Discordian_TemporaryKey.pfx</PackageCertificateKeyFile>
+    <PackageCertificateKeyFile>
+    </PackageCertificateKeyFile>
     <GenerateAppInstallerFile>True</GenerateAppInstallerFile>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
     <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
     <GenerateTestArtifacts>True</GenerateTestArtifacts>
     <AppxBundle>Always</AppxBundle>
     <AppxBundlePlatforms>x86|x64</AppxBundlePlatforms>
-    <AppInstallerUri>https://discodian-cdn.azurewebsites.net/discordian</AppInstallerUri>
+    <AppInstallerUri>https://discordian-cdn.azurewebsites.net/discordian</AppInstallerUri>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
-    <AppxPackageDir>C:\Users\dgroz\Desktop\</AppxPackageDir>
+    <AppxPackageDir>C:\Users\grod\Desktop\Discordian_Release\</AppxPackageDir>
+    <PackageCertificateThumbprint>EE853BA01D53F7F5188235617FE689FB106490E3</PackageCertificateThumbprint>
+    <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -176,11 +179,14 @@
     <Compile Include="Helpers\SettingsStorageExtensions.cs" />
     <Compile Include="Services\ActivationService.cs" />
     <Compile Include="Activation\DefaultActivationHandler.cs" />
+    <Compile Include="Services\BackgroundTaskSchedulerService.cs" />
     <Compile Include="Services\DiscordApiClient.cs" />
     <Compile Include="Services\DiscordianBotConsoleClient.cs" />
     <Compile Include="Services\DiscordianDbContext.cs" />
     <Compile Include="Services\NavigationService.cs" />
     <Compile Include="Services\ThemeSelectorService.cs" />
+    <Compile Include="Services\UserContextService.cs" />
+    <Compile Include="Services\WixApiClient.cs" />
     <Compile Include="Utilities\AppConfig.cs" />
     <Compile Include="Utilities\DriverFactory.cs" />
     <Compile Include="Utilities\Logger.cs" />
@@ -273,6 +279,8 @@
     <Compile Include="Helpers\ResourceExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\Background\Background-faded.png" />
+    <Content Include="Assets\Background\Background.png" />
     <Content Include="Assets\Background\login.jpg" />
     <Content Include="Assets\Background\loginbackground.jpg" />
     <Content Include="Assets\Background\robotslogin-filtered2.png" />
@@ -362,12 +370,6 @@
     <Content Include="Assets\Square44x44Logo.scale-200.png" />
     <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
-    <Content Include="SeleniumDrivers\chromedriver.exe">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="SeleniumDrivers\msedgedriver.exe">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -380,10 +382,13 @@
     <None Include="BotConsole\Discordian.BotLauncher.deps.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="BotConsole\Discordian.BotLauncher.runtimeconfig.dev.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="BotConsole\Discordian.BotLauncher.runtimeconfig.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Discordian_TemporaryKey.pfx" />
+    <None Include="Discordian_ctx.pfx" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">

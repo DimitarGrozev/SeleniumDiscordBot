@@ -17,6 +17,28 @@ namespace Discordian.Views
             InitializeComponent();
             DataContext = ViewModel;
             ViewModel.Initialize(shellFrame, navigationView, KeyboardAccelerators);
+            this.CheckSubscriptionStatus();
+        }
+
+        private void CheckSubscriptionStatus()
+        {
+            var subscription = UserContextService.Subscription;
+
+            //Check if user is with a promoted account and if not check his subscription status
+            if (subscription?.IsPromotionSubscription == false)
+            {
+                if (subscription == null)
+                {
+                    this.InitialSubscriptionNotification.IsOpen = true;
+                }
+
+                if (subscription.UserSubscriptions == null)
+                {
+                    this.SubscriptionRenewalNotification.IsOpen = true;
+                }
+            }
+
+            this.WelcomeBackMessage.Text = subscription.Email;
         }
 
         private async void NavigationViewItem_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)

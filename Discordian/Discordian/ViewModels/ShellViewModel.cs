@@ -32,6 +32,14 @@ namespace Discordian.ViewModels
         private ICommand _loadedCommand;
         private ICommand _itemInvokedCommand;
 
+        public bool IsItemEnabled
+        {
+            get
+            {
+                return UserContextService.Subscription != null;
+            }
+        }
+
         public bool IsBackEnabled
         {
             get { return _isBackEnabled; }
