@@ -30,6 +30,7 @@
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
     <AppxPackageDir>C:\Users\grod\Desktop\Discordian_Release\</AppxPackageDir>
     <PackageCertificateThumbprint>EE853BA01D53F7F5188235617FE689FB106490E3</PackageCertificateThumbprint>
+    <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -387,7 +388,7 @@
     <None Include="BotConsole\Discordian.BotLauncher.runtimeconfig.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Discordian_TemporaryKey.pfx" />
+    <None Include="Discordian_ctx.pfx" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
